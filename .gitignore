@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.dsh-usage-stats.json
+.usage-stats.json
+.DS_Store
+Thumbs.db
