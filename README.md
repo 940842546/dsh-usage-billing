@@ -1,5 +1,7 @@
 # dsh-usage-billing · DeepSeek 用量与消费统计插件
 
+[![Awesome DSH Plugin](https://beancookie.github.io/awesome-dsh-plugin/badge.svg)](https://beancookie.github.io/awesome-dsh-plugin)
+
 针对 DeepSeek Harness 的**免构建**双面插件：自动统计本机所有会话的 DeepSeek 模型调用，按官方定价分段计费，并在主界面与设置页提供图表化的用量面板。
 
 > 计费口径：2026-08-17 00:00（北京时间）前旧价；之后峰谷定价（高峰 9:00–12:00、14:00–18:00，其余空闲时段）。价格表见文末。
