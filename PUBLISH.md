@@ -46,8 +46,12 @@ git push -u origin main
 
 ```bash
 npm login
-npm publish
+npm publish --auth-type web   # 2FA 账号走浏览器验证
 ```
+
+> ✅ 已发布：https://www.npmjs.com/package/dsh-usage-billing（v0.2.0，latest）
+> 用户安装：`dsh plugin --profile web add dsh-usage-billing`
+> 发新版：`npm version patch && npm publish`
 
 > 若裸名 `dsh-usage-billing` 已被占用，改用 `dsh-usage-billing-<后缀>`，
 > 并同步修改 package.json、cordis.patch.yml 行与 lib/client.js 的模块 id。

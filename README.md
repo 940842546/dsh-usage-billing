@@ -20,17 +20,20 @@
 
 ## 安装
 
-### 方式 A：官方 profile 插件机制（推荐）
+### 方式 A：npm 一键安装（推荐，预构建）
 
 ```powershell
-# 安装并登记到 profile 的 bundles（内部走 pnpm 管理 profile 依赖）
-dsh plugin --profile web add <本仓库路径或包名>
+dsh plugin --profile web add dsh-usage-billing
 ```
+
+npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 应用启动时通过本包的 `dsh.bundle.patch`（`cordis.patch.yml`）自动挂载，无需任何其他配置。
 
 > ⚠ 不要直接修改官方 bundle（如 `@deepseek-ai/dsh-web-app/cordis.patch.yml`），
 > 也不要把插件放进 `npm-cache\_npx` 缓存（npm reify 会随时重建并留下悬空链接）。
+
+> 本地路径形式同样支持：`dsh plugin --profile web add <本仓库路径>`。
 
 ### 方式 B：用户级补丁（不动 profile）
 
