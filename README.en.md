@@ -18,7 +18,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Export**: one-click CSV (daily / per-session) or JSON export for accounting
 - **Official balance**: auto-detects the configured DeepSeek API key and fetches the official account balance (total / topped up / granted), refreshing every 10 minutes; silently skipped when no key is configured
 - **Main UI**:
-  - A "Usage" button at the sidebar foot → a floating summary panel (total cost, budget progress, billing-segment ratio, usage heatmap, session Top 5)
+  - A "Token Usage" card at the sidebar foot (current model + this-session tokens/cost, thousands-separated) → opens a centered "Token Usage & Cost Stats" dialog (¥/USD currency toggle, overview cards, by-model / by-session tables, budget progress, official balance, billing-segment ratio, usage heatmap)
   - A persistent line under the composer showing the **current session** usage
 - **Settings → Usage Stats**: full details (stat cards, budget progress, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8, per-model, recent calls, backfill/clear/export, pricing & budget editor)
 - **Dynamic tool `usage_stats`**: the model can query statistics directly ("how much have I spent?")
