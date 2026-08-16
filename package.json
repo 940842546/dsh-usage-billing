@@ -1,6 +1,6 @@
 {
   "name": "dsh-usage-billing",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "DeepSeek Harness 用量与消费统计插件：按 2026-08-17 调价前后峰谷价格计费，含主界面汇总面板、会话级明细与图表",
   "keywords": [
     "deepseek-harness",

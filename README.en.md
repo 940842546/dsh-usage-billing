@@ -19,6 +19,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Settings → 用量统计**: full details (stat cards, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8, per-model, recent calls, backfill/clear)
 - **Dynamic tool `usage_stats`**: the model can query statistics directly ("how much have I spent?")
 - **Persistence**: data is written to `.dsh-usage-stats.json` under the write-policy root; survives restarts
+- **Bilingual UI**: all panel copy follows the app language setting (Chinese / English) and switches instantly
 
 ## Install
 
