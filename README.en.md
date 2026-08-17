@@ -12,11 +12,14 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 
 - **Automatic tracking**: listens to `llm/stream` and records every model call (input / output / cache hit / cache miss tokens)
 - **Historical backfill**: on first start, scans local session logs to rebuild historical usage and cost, with session titles
-- **Tiered billing**: each call falls into "before 8/17 · legacy", "after 8/17 · peak", or "after 8/17 · off-peak" by Beijing time
+- **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time
+- **Budget alerts**: optional daily/monthly budget with progress bars (orange near 80%, red when over) in the panel and settings
+- **Configurable pricing**: price table, peak hours, and boundary date are all editable (changes apply to subsequent calls only), with one-click reset to defaults
+- **Export**: one-click CSV (daily / per-session) or JSON export for accounting
 - **Main UI**:
-  - A "用量" button at the sidebar foot → a floating summary panel (total cost, billing-segment ratio, usage heatmap, session Top 5)
+  - A "Usage" button at the sidebar foot → a floating summary panel (total cost, budget progress, billing-segment ratio, usage heatmap, session Top 5)
   - A persistent line under the composer showing the **current session** usage
-- **Settings → 用量统计**: full details (stat cards, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8, per-model, recent calls, backfill/clear)
+- **Settings → Usage Stats**: full details (stat cards, budget progress, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8, per-model, recent calls, backfill/clear/export, pricing & budget editor)
 - **Dynamic tool `usage_stats`**: the model can query statistics directly ("how much have I spent?")
 - **Persistence**: data is written to `.dsh-usage-stats.json` under the write-policy root; survives restarts
 - **Bilingual UI**: all panel copy follows the app language setting (Chinese / English) and switches instantly
