@@ -16,6 +16,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Budget alerts**: optional daily/monthly budget with progress bars (orange near 80%, red when over) in the panel and settings
 - **Configurable pricing**: price table, peak hours, and boundary date are all editable (changes apply to subsequent calls only), with one-click reset to defaults
 - **Export**: one-click CSV (daily / per-session) or JSON export for accounting
+- **Official balance**: auto-detects the configured DeepSeek API key and fetches the official account balance (total / topped up / granted), refreshing every 10 minutes; silently skipped when no key is configured
 - **Main UI**:
   - A "Usage" button at the sidebar foot → a floating summary panel (total cost, budget progress, billing-segment ratio, usage heatmap, session Top 5)
   - A persistent line under the composer showing the **current session** usage
