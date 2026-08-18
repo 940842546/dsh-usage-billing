@@ -25,6 +25,26 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Persistence**: data is written to `.dsh-usage-stats.json` under the write-policy root; survives restarts
 - **Bilingual UI**: all panel copy follows the app language setting (Chinese / English) and switches instantly
 
+## Screenshots
+
+> The screenshots below use fictional demo data.
+
+**Stats dialog · overview** (opened from the sidebar Token Usage card)
+
+![Stats dialog overview](assets/screenshots/en-02-stats-dialog-overview.png)
+
+**Stats dialog · charts** (billing-segment ratio + usage heatmap, with ¥/USD toggle)
+
+![Stats dialog charts](assets/screenshots/en-03-stats-dialog-charts.png)
+
+**USD mode** (one-click toggle in the dialog header, exchange-rate converted)
+
+![USD mode](assets/screenshots/en-07-stats-dialog-usd.png)
+
+**Settings · Usage Stats**
+
+![Settings overview](assets/screenshots/en-04-settings-usage-overview.png)
+
 ## Install
 
 ### Option A: one-line npm install (recommended, prebuilt)

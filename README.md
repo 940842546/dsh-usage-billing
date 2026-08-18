@@ -25,6 +25,26 @@
 - **持久化**：数据写入写策略根目录 `.dsh-usage-stats.json`，重启不丢
 - **中英双语**：所有界面文案跟随应用语言设置即时切换（中文 / English）
 
+## 界面预览
+
+> 以下截图基于虚构演示数据。
+
+**统计弹窗 · 总览**（主界面侧边栏卡片点开）
+
+![统计弹窗总览](assets/screenshots/02-stats-dialog-overview.png)
+
+**统计弹窗 · 图表区**（分段占比 + 用量热力图，支持 ¥/USD 切换）
+
+![统计弹窗图表](assets/screenshots/03-stats-dialog-charts.png)
+
+**美元模式**（弹窗右上角一键切换，汇率换算）
+
+![美元模式](assets/screenshots/07-stats-dialog-usd.png)
+
+**设置页 · 用量统计**
+
+![设置页概览](assets/screenshots/04-settings-usage-overview.png)
+
 ## 安装
 
 ### 方式 A：npm 一键安装（推荐，预构建）
@@ -86,6 +106,8 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 ├── lib/
 │   ├── index.js     # Host 半体：llm/stream 监听、计费、回填、持久化、/usage-stats 路由、usage_stats 工具
 │   └── client.js    # Client 半体：主界面入口 + 设置页面板（window.__ModuleLoader__ 打包格式，免构建）
+├── assets/
+│   └── screenshots/ # 界面预览截图（虚构演示数据，中/英）
 ├── cordis.patch.yml # bundle 补丁：声明挂载行（dsh.bundle.patch 机制）
 ├── package.json     # exports（"." / "./client" / "./cordis.patch.yml"）+ dsh.client / dsh.bundle 声明
 ├── PUBLISH.md       # 发布指南（GitHub / npm / 用户安装）
