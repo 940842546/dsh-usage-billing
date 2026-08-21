@@ -99,6 +99,8 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 | 8/17 后·空闲 | v4-pro | 0.15 | 4.5 | 13.5 |
 | 8/17 后·高峰 | v4-pro | 0.30 | 9.0 | 27.0 |
 
+> 模型按名称子串归类计价：名字含 `flash`（含 `deepseek-v4-flash-vision-exp` 等视觉变体，官方同价）按 flash 档，含 `pro` 按 pro 档，其余归入「未定价/免费」。
+
 参考：[DeepSeek API 定价](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
 ## 目录结构

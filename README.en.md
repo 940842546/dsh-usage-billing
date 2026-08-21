@@ -97,6 +97,8 @@ Price table (CNY per million tokens):
 | After 8/17 · off-peak | v4-pro | 0.15 | 4.5 | 13.5 |
 | After 8/17 · peak | v4-pro | 0.30 | 9.0 | 27.0 |
 
+> Models are classified by name substring: names containing `flash` (including vision variants like `deepseek-v4-flash-vision-exp`, officially same price) are billed at flash rates, `pro` at pro rates, others as "unpriced / free".
+
 Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
 ## Structure
