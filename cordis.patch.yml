@@ -1,6 +1,8 @@
 # dsh-usage-billing bundle patch: inserts this plugin into a profile's layer stack.
 # Applied when a profile lists this bundle; rows reference the package by name so
 # Node resolution finds the installed code.
+# id 用包专属名 usage-billing（早期版本用通用名 usage-stats，会与其他用量类插件的
+# 挂载行 id 冲突，导致同 profile 只能装一个；见 issue #3）
 - insert:
-    - id: usage-stats
+    - id: usage-billing
       name: 'dsh-usage-billing'
