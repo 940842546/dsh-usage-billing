@@ -74,7 +74,7 @@ Add the content of the repo-root `cordis.patch.yml` to:
 
 ```yaml
 - insert:
-    - id: usage-stats
+    - id: usage-billing
       name: 'dsh-usage-billing'
 ```
 

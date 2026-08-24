@@ -74,7 +74,7 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 ```yaml
 - insert:
-    - id: usage-stats
+    - id: usage-billing
       name: 'dsh-usage-billing'
 ```
 
@@ -108,7 +108,7 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 ```
 .
 ├── lib/
-│   ├── index.js     # Host 半体：llm/stream 监听、计费、回填、持久化、/usage-stats 路由、usage_stats 工具
+│   ├── index.js     # Host 半体：llm/stream 监听、计费、回填、持久化、/usage-billing 路由、usage_billing 工具
 │   └── client.js    # Client 半体：主界面入口 + 设置页面板（window.__ModuleLoader__ 打包格式，免构建）
 ├── assets/
 │   └── screenshots/ # 界面预览截图（虚构演示数据，中/英）
