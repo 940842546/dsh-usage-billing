@@ -6,13 +6,13 @@
 
 A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek model call across all sessions, bills them by official pricing, and provides charted usage panels on the main UI and the settings page.
 
-> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00; all other times and weekends are off-peak, at half the peak rate). Price table at the bottom.
+> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate). Price table at the bottom.
 
 ## Features
 
 - **Automatic tracking**: listens to `llm/stream` and records every model call (input / output / cache hit / cache miss tokens)
 - **Historical backfill**: on first start, scans local session logs to rebuild historical usage and cost, with session titles
-- **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (peak applies on weekdays only; weekends are fully off-peak)
+- **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak)
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
