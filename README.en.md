@@ -23,8 +23,8 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
   - A "Token Usage" card at the sidebar foot (current model + this-session tokens/cost, thousands-separated) → opens a centered "Token Usage & Cost Stats" dialog (¥/USD currency toggle, overview cards, by-model / by-session tables, budget progress, official balance, billing-segment ratio, usage heatmap)
   - A persistent line under the composer showing the **current session** usage
 - **Settings → Usage Stats**: full details (stat cards, budget progress, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8, per-model, recent calls, backfill/clear/export, pricing & budget editor)
-- **Dynamic tool `usage_stats`**: the model can query statistics directly ("how much have I spent?" / "today?" — supports today/month/all scopes)
-- **Persistence**: data is written to `.dsh-usage-stats.json` under the write-policy root; survives restarts
+- **Dynamic tool `usage_billing` (alias `usage_stats`)**: the model can query statistics directly ("how much have I spent?" / "today?" — supports today/month/all scopes)
+- **Persistence**: data is written to `.dsh-usage-billing.json` under the write-policy root; survives restarts (before v0.5.4: `.dsh-usage-stats.json`, auto-migrated on upgrade)
 - **Bilingual UI**: all panel copy follows the app language setting (Chinese / English) and switches instantly
 
 ## Screenshots
@@ -82,7 +82,7 @@ Add the content of the repo-root `cordis.patch.yml` to:
 
 | Data | Location / notes |
 | --- | --- |
-| Stats file | `.dsh-usage-stats.json` under the write-policy root (usually the user home) |
+| Stats file | `.dsh-usage-billing.json` under the write-policy root (usually the user home) |
 | Billing zone | Beijing time; rate-change boundary 2026-08-17 00:00 |
 | Unit | CNY per million tokens |
 
