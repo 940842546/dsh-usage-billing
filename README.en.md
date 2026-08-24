@@ -106,7 +106,7 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 ```
 .
 ├── lib/
-│   ├── index.js     # Host half: llm/stream tracking, billing, backfill, persistence, /usage-stats route, usage_stats tool
+│   ├── index.js     # Host half: llm/stream tracking, billing, backfill, persistence, /usage-billing route, usage_billing tool
 │   └── client.js    # Client half: main-UI entries + settings panel (window.__ModuleLoader__ bundle, build-free)
 ├── cordis.patch.yml # Bundle patch declaring the mount row (dsh.bundle.patch mechanism)
 ├── package.json     # exports ("." / "./client" / "./cordis.patch.yml") + dsh.client / dsh.bundle declarations
