@@ -6,7 +6,7 @@
 
 A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek model call across all sessions, bills them by official pricing, and provides charted usage panels on the main UI and the settings page.
 
-> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate). Price table at the bottom.
+> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate; from 9/10 12:00 the flash series reprices again (off-peak hit 0.02 / miss 1 / out 4, peak ×2, pro unchanged)). Price table at the bottom.
 
 ## Features
 
@@ -98,6 +98,8 @@ Price table (CNY per million tokens):
 | After 8/17 · peak | v4-flash | 0.10 | 3.0 | 9.0 |
 | After 8/17 · off-peak | v4-pro | 0.15 | 4.5 | 13.5 |
 | After 8/17 · peak | v4-pro | 0.30 | 9.0 | 27.0 |
+| Since 9/10 12:00 · off-peak | v4-flash | 0.02 | 1 | 4 |
+| Since 9/10 12:00 · peak | v4-flash | 0.04 | 2 | 8 |
 
 > Models are classified by name substring: names containing `flash` (including vision variants like `deepseek-v4-flash-vision-exp`, officially same price) are billed at flash rates, `pro` at pro rates, others as "unpriced / free".
 
