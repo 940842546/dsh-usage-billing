@@ -94,16 +94,16 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 | 时段 | 模型 | 命中 | 未命中 | 输出 |
 | --- | --- | --- | --- | --- |
-| 8/17 前 | v4-flash | 0.02 | 1 | 2 |
+| 8/17 前 | flash | 0.02 | 1 | 2 |
 | 8/17 前 | v4-pro | 0.025 | 3 | 6 |
-| 8/17 后·空闲 | v4-flash | 0.05 | 1.5 | 4.5 |
-| 8/17 后·高峰 | v4-flash | 0.10 | 3.0 | 9.0 |
+| 8/17 后·空闲 | flash | 0.05 | 1.5 | 4.5 |
+| 8/17 后·高峰 | flash | 0.10 | 3.0 | 9.0 |
 | 8/17 后·空闲 | v4-pro | 0.15 | 4.5 | 13.5 |
 | 8/17 后·高峰 | v4-pro | 0.30 | 9.0 | 27.0 |
-| 9/10 12:00 后·空闲 | v4-flash | 0.02 | 1 | 4 |
-| 9/10 12:00 后·高峰 | v4-flash | 0.04 | 2 | 8 |
+| 9/10 12:00 后·空闲 | flash | 0.02 | 1 | 4 |
+| 9/10 12:00 后·高峰 | flash | 0.04 | 2 | 8 |
 
-> 模型按名称子串归类计价：名字含 `flash`（含 `deepseek-v4-flash-vision-exp` 等视觉变体，官方同价）按 flash 档，含 `pro` 按 pro 档，其余归入「未定价/免费」。
+> 模型按名称子串归类计价：名字含 `flash`（含新名 `deepseek-flash` 及旧名 `deepseek-v4-flash`、`deepseek-v4-flash-vision-exp`——旧名已下线、由 V4.1-Flash 服务并同价计费）按 flash 档，含 `pro` 按 pro 档，其余归入「未定价/免费」。
 
 参考：[DeepSeek API 定价](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 

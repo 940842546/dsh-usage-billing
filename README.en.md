@@ -92,16 +92,16 @@ Price table (CNY per million tokens):
 
 | Period | Model | Cache hit | Cache miss | Output |
 | --- | --- | --- | --- | --- |
-| Before 8/17 | v4-flash | 0.02 | 1 | 2 |
+| Before 8/17 | flash | 0.02 | 1 | 2 |
 | Before 8/17 | v4-pro | 0.025 | 3 | 6 |
-| After 8/17 · off-peak | v4-flash | 0.05 | 1.5 | 4.5 |
-| After 8/17 · peak | v4-flash | 0.10 | 3.0 | 9.0 |
+| After 8/17 · off-peak | flash | 0.05 | 1.5 | 4.5 |
+| After 8/17 · peak | flash | 0.10 | 3.0 | 9.0 |
 | After 8/17 · off-peak | v4-pro | 0.15 | 4.5 | 13.5 |
 | After 8/17 · peak | v4-pro | 0.30 | 9.0 | 27.0 |
-| Since 9/10 12:00 · off-peak | v4-flash | 0.02 | 1 | 4 |
-| Since 9/10 12:00 · peak | v4-flash | 0.04 | 2 | 8 |
+| Since 9/10 12:00 · off-peak | flash | 0.02 | 1 | 4 |
+| Since 9/10 12:00 · peak | flash | 0.04 | 2 | 8 |
 
-> Models are classified by name substring: names containing `flash` (including vision variants like `deepseek-v4-flash-vision-exp`, officially same price) are billed at flash rates, `pro` at pro rates, others as "unpriced / free".
+> Models are classified by name substring: names containing `flash` (the new `deepseek-flash` plus legacy `deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` — retired names are served by V4.1-Flash at Flash rates) are billed at flash rates, `pro` at pro rates, others as "unpriced / free".
 
 Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
