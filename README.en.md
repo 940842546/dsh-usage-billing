@@ -6,7 +6,7 @@
 
 A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek model call across all sessions, bills them by official pricing, and provides charted usage panels on the main UI and the settings page.
 
-> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate; from 9/10 12:00 the flash series reprices again (off-peak hit 0.02 / miss 1 / out 4, peak ×2, pro unchanged; between the V4.1 Flash launch and the V4.1 Pro launch, V4 Pro requests are routed to V4.1 Flash and billed at Flash rates — the plugin follows this by default and it can be turned off in settings)). Price table at the bottom.
+> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate; from 9/10 12:00 the flash series reprices again (off-peak hit 0.02 / miss 1 / out 4, peak ×2, pro unchanged; from 2026-09-14 12:00 V4 Pro is retired; requests are routed to V4.1 Flash and billed at Flash rates — the plugin follows this by default and it can be turned off in settings)). Price table at the bottom.
 
 ## Features
 
