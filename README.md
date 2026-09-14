@@ -66,6 +66,19 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 > 本地路径形式同样支持：`dsh plugin --profile web add <本仓库路径>`。
 
+> 📌 **link:/本地 link 开发安装的机器绑定说明**：`@deepseek-ai/dsh-tools` 由宿主 dsh
+> 提供（见 `peerDependencies`），npm 上暂无匹配版本，因此本地 link 安装时它解析自
+> 宿主侧。若插件的 `node_modules` 中没有对应链接，可在插件目录建一个指向 dsh
+> 农场的 junction（农场由当前活跃引擎自动维护，跟随引擎版本）：
+>
+> ```powershell
+> New-Item -ItemType Junction -Path "node_modules\@deepseek-ai\dsh-tools" `
+>   -Target "$env:USERPROFILE\.dsh\profiles\node_modules\@deepseek-ai\dsh-tools"
+> ```
+>
+> 该 junction 与本机 `~/.dsh` 绑定，**换机器需重建**（`dsh plugin add` 本地路径方式
+> 不受影响）；npm 方式安装（方式 A）完全无此问题。
+
 ### 方式 B：用户级补丁（不动 profile）
 
 把本仓库根目录的 `cordis.patch.yml` 内容加入：
