@@ -6,13 +6,13 @@
 
 A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek model call across all sessions, bills them by official pricing, and provides charted usage panels on the main UI and the settings page.
 
-> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate; from 9/10 12:00 the flash series reprices again (off-peak hit 0.02 / miss 1 / out 4, peak ×2, pro unchanged; V4 Pro continues after 9/14 at unchanged pro rates (a routing toggle is kept for a future official change; currently off))). Price table at the bottom.
+> Billing: legacy prices before 2026-08-17 00:00 (Beijing time); peak/off-peak pricing after that (peak = **weekdays** 9:00–12:00 & 14:00–18:00 (effective 2026-08-23; before that weekends also counted as peak); off-peak is half the peak rate; from 9/10 12:00 the flash series reprices again (off-peak hit 0.02 / miss 1 / out 4, peak ×2, pro unchanged; V4 Pro continues after 9/14 at unchanged pro rates (a routing toggle is kept for a future official change; currently off))). **Public holidays and make-up workdays bill off-peak all day** (the 2026 State Council schedule is built in; extra dates can be added in settings). Price table at the bottom.
 
 ## Features
 
 - **Automatic tracking**: listens to `llm/stream` and records every model call (input / output / cache hit / cache miss tokens)
 - **Historical backfill**: on first start, scans local session logs to rebuild historical usage and cost, with session titles
-- **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak)
+- **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak; **public holidays and make-up workdays are off-peak all day** — the holiday list is editable in settings, so the 2027 schedule can be added once published)
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
@@ -23,7 +23,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **More robust storage**: writes keep a .tmp copy and auto-recover from it when the main file is corrupt; multi-instance heartbeat detection warns about concurrent writes
 - **Main UI**:
   - A "Token Usage" card at the sidebar foot (current model + this-session tokens/cost, thousands-separated) → opens a centered "Token Usage & Cost Stats" dialog (¥/USD currency toggle, overview cards, by-model / by-session tables, budget progress, official balance, billing-segment ratio, usage heatmap)
-  - A persistent line under the composer showing the **current session** usage
+  - A persistent line under the composer showing the **current session** usage: a ring (daily budget, amber ≥80%, red ≥100%) plus cost/calls/tokens — **click to open a detail panel** (session cost & today total, billing-band ratio bar, calls/in/cache-hit-rate/out rows, per-band cost, per-model split, daily budget; Esc or outside click dismisses) — interaction and styling match the official ContextMeter
 - **Settings → Usage Stats**: full details (stat cards, budget progress, segment ratio, day/week/month/year/all heatmap with instant hover tooltips, per-session Top 8 (click to open the session), per-model, recent calls, backfill/clear/export, pricing & budget editor)
 - **Dynamic tool `usage_billing` **: the model can query statistics directly ("how much have I spent?" / "today?" — supports today/month/all scopes)
 - **Persistence**: data is written to `.dsh-usage-billing.json` under the write-policy root; survives restarts (before v0.5.4: `.dsh-usage-stats.json`, auto-migrated on upgrade)
@@ -105,6 +105,8 @@ Price table (CNY per million tokens):
 
 Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
+> Holiday billing: the 2026 State Council holiday schedule (holidays plus make-up workdays) is built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line, so the 2027 schedule can be added by hand once published — no plugin release needed.
+
 ## Structure
 
 ```
@@ -125,6 +127,7 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 - **Panel not showing**: the client bundle is discovered by the deployment's `clientModules` service; restart the app and refresh the page after first install.
 - **Two instances at once**: the stats file is a shared resource and concurrent writes overwrite each other — keep a single instance.
 - **Overwritten by upgrades**: redeploying the app directory overwrites built-in patch lines and package files; re-run the install step.
+- **dsh version compatibility**: verified against 0.1.2-alpha.1 through 0.1.6-alpha.2 (since 0.1.6 `sessions.open` is gone; session navigation automatically uses `uiWorkspace.openSession` with a fallback for older runtimes — no version-specific install needed).
 
 ## License
 
