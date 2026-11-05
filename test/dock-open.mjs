@@ -73,7 +73,11 @@ const statsData = {
 };
 globalThis.fetch = (...args) => { console.log('  [fetch called]', String(args[0]).slice(0, 40)); return Promise.resolve({ json: () => Promise.resolve(statsData) }); };
 
-const exports = fn((name) => (name === 'react' ? R.module : {}));
+const portalCalls = [];
+const reactDomStub = {
+  createPortal: (node, target) => { portalCalls.push(target); return node; },
+};
+const exports = fn((name) => (name === 'react' ? R.module : name === 'react-dom' ? reactDomStub : {}));
 const registered = [];
 const slots = {
   inject: (key, reg) => { try { reg(); } catch {} },
@@ -154,6 +158,8 @@ if (triggers[0]) {
   check('点击后详情面板出现', panels.length === 1, `got ${panels.length}`);
   const anchors = findIn(tree, (n) => n.props && n.props.className === 'usg-sess-anchor');
   check('面板锚点 anchor 存在', anchors.length === 1, `got ${anchors.length}`);
+  // fixed 浮层必须 portal 到 body：否则输入框祖先的 will-change:transform 会把面板定位到屏幕外
+  check('面板经 createPortal 挂到 document.body', portalCalls.length >= 1 && portalCalls[0] === document.body, `calls=${portalCalls.length}`);
   const rows = findIn(tree, (n) => n.props && n.props.className === 'usg-sess-row');
   check('面板明细行 >=6', rows.length >= 6, `got ${rows.length}`);
   const segs = findIn(tree, (n) => n.props && n.props.className && String(n.props.className).includes('usg-sess-segment'));
