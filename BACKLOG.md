@@ -74,7 +74,9 @@
 
 ## 已完成
 
-- **0.9.6** 面板掉到屏幕下方：`react-dom` portal 到 `document.body`（输入框祖先 `will-change: transform` 造成包含块）+ 面板高度钳制与滚动。
+- **0.9.7** 视觉与可访问性打磨：语义色/阴影/圆角全部走宿主 token（明暗主题一致）、`focus-visible` 焦点环、
+  面板入场动画 + `prefers-reduced-motion`、中文 token 单位改为「万/亿」、清理死 CSS。
+- **0.9.6** 面板掉到屏幕下方：`react-dom` portal 到 `document.body`（输入框祖先 `will-change: transform` 造成包含块）+ 面板高度钳制与滚动 + 无 portal 时的 offsetParent 坐标补偿。
 - **0.9.3** 缓存命中率算错（把缓存算了两次，`hit/(input+hit)` → `hit/input`）。
 - **0.9.1** 双 `¥`（模板字面量 + 格式化函数重复带符号）。
 - **0.9.0 / 0.9.1** 输入框下方会话行可点开详情面板（环形预算进度、分段条、明细行、Esc/外点关闭）。
