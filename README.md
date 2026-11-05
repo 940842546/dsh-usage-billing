@@ -144,7 +144,7 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 - **面板不显示**：客户端 bundle 由部署的 `clientModules` 服务发现；首次安装后需重启应用并刷新页面。
 - **两个实例同时运行**：统计文件是共享资源，多实例同时写会互相覆盖，请保持单实例。
 - **升级被覆盖**：部署目录升级会覆盖内置补丁行与包文件，重跑一遍安装步骤即可。
-- **dsh 版本兼容**：0.1.2-alpha.1 ~ 0.1.6-alpha.2 实测通过（0.1.6 起 `sessions.open` 被移除，会话导航自动改走 `uiWorkspace.openSession`，旧运行时自动回退，无需区分版本安装）。
+- **dsh 版本兼容**：0.1.2-alpha.1 ~ **0.2.2-rc.1** 实测通过（0.1.6 起 `sessions.open` 被移除，会话导航自动改走 `uiWorkspace.openSession`，旧运行时自动回退；0.2.0 起运行时强制校验 peerDependencies，本插件已声明兼容区间）。逐版本核查结论与可复现方法见 [`COMPAT.md`](COMPAT.md)，后续计划见 [`BACKLOG.md`](BACKLOG.md)。
 
 ## License
 

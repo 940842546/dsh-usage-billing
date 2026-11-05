@@ -127,7 +127,7 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 - **Panel not showing**: the client bundle is discovered by the deployment's `clientModules` service; restart the app and refresh the page after first install.
 - **Two instances at once**: the stats file is a shared resource and concurrent writes overwrite each other — keep a single instance.
 - **Overwritten by upgrades**: redeploying the app directory overwrites built-in patch lines and package files; re-run the install step.
-- **dsh version compatibility**: verified against 0.1.2-alpha.1 through 0.1.6-alpha.2 (since 0.1.6 `sessions.open` is gone; session navigation automatically uses `uiWorkspace.openSession` with a fallback for older runtimes — no version-specific install needed).
+- **dsh version compatibility**: verified against 0.1.2-alpha.1 through **0.2.2-rc.1** (since 0.1.6 `sessions.open` is gone; session navigation automatically uses `uiWorkspace.openSession` with a fallback for older runtimes; since 0.2.0 the runtime enforces peerDependencies, and this plugin declares a compatible range). Per-version findings and a reproducible checklist live in [`COMPAT.md`](COMPAT.md); the roadmap is in [`BACKLOG.md`](BACKLOG.md).
 
 ## License
 
