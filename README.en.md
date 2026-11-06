@@ -108,7 +108,7 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 
 > Holiday billing: the **2026** ([State Council notice](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)) and **2027** ([notice](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)) schedules — holidays plus make-up workdays — are built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line for future years.
 
-Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; 44 rules, editable in settings):
+Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; 49 rules, editable in settings):
 
 | Vendor | Built-in matches (excerpt) | Currency | Notes | Source |
 | --- | --- | --- | --- | --- |
