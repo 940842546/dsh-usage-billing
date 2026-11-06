@@ -17,7 +17,7 @@ const files = new Map();
 const fixture = {
   version: 1,
   updatedAt: 1000,
-  meta: { liveSince: 1, lastBackfillAt: 0, lastBackfillSessions: 0, lastBackfillFound: 0, sessionAttribution: true, schemaVersion: 12 },
+  meta: { liveSince: 1, lastBackfillAt: 0, lastBackfillSessions: 0, lastBackfillFound: 0, sessionAttribution: true, schemaVersion: 13 },
   total: { calls: 10, input: 100, cacheHit: 50, cacheMiss: 50, output: 20, cost: 1.5 },
   byBand: {
     before: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
@@ -238,11 +238,11 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   let after = null;
   for (let i = 0; i < 100; i++) {
     after = await get2();
-    if (after.stats.meta && after.stats.meta.schemaVersion === 12 && after.stats.total.calls === 3) break;
+    if (after.stats.meta && after.stats.meta.schemaVersion === 13 && after.stats.total.calls === 3) break;
     await new Promise((r) => setTimeout(r, 5));
   }
   check('重建完成后统计被原子替换（7 → 3 次）', after.stats.total.calls === 3, `calls=${after.stats.total.calls}`);
-  check('重建后 schemaVersion=11', after.stats.meta.schemaVersion === 12);
+  check('重建后 schemaVersion=11', after.stats.meta.schemaVersion === 13);
   check('重建后会话带精确分布', !!after.stats.bySession.s1 && !!after.stats.bySession.s1.byBand && after.stats.bySession.s1.byModel.flash.calls === 3, JSON.stringify(after.stats.bySession.s1 && after.stats.bySession.s1.byBand));
   check('重建后标题已回填', after.stats.bySession.s1.title === '新标题');
 }
@@ -405,6 +405,17 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   await emit('gemini-3.8-flash', { inputTokens: 1000000, outputTokens: 0 });
   await emit('doubao-seed-2.0-pro', { inputTokens: 1000000, outputTokens: 0 });
   const after = await get5();
+  // dock 详情应带「本会话今日」小计（流式调用无 session 时归到 unknown）
+  {
+    const res = makeRes();
+    await route5.handler(makeReq('/usage-billing?view=dock&detail=unknown'), res);
+    const dockJson = JSON.parse(res.body);
+    check(
+      'dock detail 带本会话今日小计',
+      !!(dockJson.detail && dockJson.detail.today && dockJson.detail.today.calls >= 5 && /^\d{4}-\d{2}-\d{2}$/.test(dockJson.detail.today.date)),
+      JSON.stringify(dockJson.detail && dockJson.detail.today),
+    );
+  }
 
   const otherCost = after.stats.byModel.other.cost - before.stats.byModel.other.cost;
   // 8（glm-5.3）+ 0.8（glm-5.3-flash）+ 14（grok-4.7：2 USD × 7）
@@ -470,7 +481,7 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   let out = null;
   for (let i = 0; i < 100; i++) {
     out = await get6();
-    if (out.stats.meta.schemaVersion === 12 && out.stats.total.calls === 3) break;
+    if (out.stats.meta.schemaVersion === 13 && out.stats.total.calls === 3) break;
     await new Promise((r) => setTimeout(r, 5));
   }
   check('2027 元旦按空闲计费', out.stats.byBand.sepOffPeak.calls === 2, `sepOffPeak=${out.stats.byBand.sepOffPeak.calls}`);
