@@ -141,6 +141,7 @@ check('dock 不含 balance/diag', !('balance' in dockJson) && !('diag' in dockJs
 const card = await get('/usage-billing?view=card&detail=s1');
 const cardJson = JSON.parse(card.body);
 check('view=card 带 byModel 与单条 recent', !!cardJson.stats.byModel.flash && cardJson.stats.recent.length === 1);
+check('view=card 带近 7 天 byDay（卡片迷你趋势）', Object.keys(cardJson.stats.byDay).length >= 1 && Object.keys(cardJson.stats.byDay).every((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)), JSON.stringify(Object.keys(cardJson.stats.byDay)));
 
 // 6. 全量 + detail
 const fullDetail = await get('/usage-billing?detail=s2');
