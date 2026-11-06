@@ -3,6 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 const outDir = process.argv[2] || '.';
 const port = process.argv[3] || '9333';
 const title = process.argv[4] || '做一个用量';
+const url = process.argv[5] || 'http://127.0.0.1:3080/';
 const base = `http://127.0.0.1:${port}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -20,7 +21,7 @@ mkdirSync(outDir, { recursive: true });
 await send('Page.enable'); await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
 
-await send('Page.navigate', { url: 'http://127.0.0.1:3080/' });
+await send('Page.navigate', { url });
 await sleep(5000);
 
 // 找到标题包含目标文本、且没有子元素的节点，再向上找可点击祖先

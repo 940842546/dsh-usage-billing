@@ -117,6 +117,11 @@ let fullJson = null;
 try { fullJson = JSON.parse(full.body); } catch {}
 check('GET 全量返回 200 且可解析', full.statusCode === 200 && !!fullJson, `status=${full.statusCode}`);
 check('全量含 balance/alerts/diag', !!fullJson && 'balance' in fullJson && Array.isArray(fullJson.alerts) && !!fullJson.diag);
+check(
+  '预算带月度预测与近 7 天日均',
+  !!fullJson.budget && typeof fullJson.budget.monthly.projected === 'number' && fullJson.budget.monthly.projected > 0 && fullJson.budget.daily.avg7 === 0,
+  JSON.stringify(fullJson.budget),
+);
 check('全量带 ETag 与 no-cache', !!full.headers['etag'] && full.headers['cache-control'] === 'no-cache', JSON.stringify(full.headers));
 
 // 2. 304
@@ -553,6 +558,49 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
 
   const pinnedHolidays = await mk({ holidayDaysSource: 'user', holidayDays: ['2026-01-01'] });
   check('用户改过节假日名单时保留', pinnedHolidays.holidayDays.length === 1 && pinnedHolidays.holidayDays[0] === '2026-01-01', JSON.stringify(pinnedHolidays.holidayDays));
+}
+
+// ── 14. 单日花费突增提醒 ────────────────────────────────────────────────────
+{
+  const files7 = new Map();
+  const path7 = ROOT + '/.dsh-usage-billing.json';
+  const f7 = JSON.parse(JSON.stringify(fixture));
+  f7.config = {};
+  const bjKey = (offsetDays) => {
+    const d = new Date(Date.now() + 8 * 3600000 - offsetDays * 86400000);
+    const p2 = (x) => (x < 10 ? '0' + x : String(x));
+    return d.getUTCFullYear() + '-' + p2(d.getUTCMonth() + 1) + '-' + p2(d.getUTCDate());
+  };
+  f7.byDay = {};
+  for (let i = 1; i <= 7; i++) f7.byDay[bjKey(i)] = { calls: 10, input: 100, cacheHit: 0, cacheMiss: 100, output: 10, cost: 0.5 };
+  f7.byDay[bjKey(0)] = { calls: 200, input: 2000, cacheHit: 0, cacheMiss: 2000, output: 200, cost: 12 };
+  files7.set(path7, JSON.stringify(f7));
+  const fs7 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files7.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files7.has(t.path)) throw new Error('ENOENT'); return files7.get(t.path); },
+    async writeText(t, c) { files7.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  let route7 = null;
+  const ctx7 = {
+    fs: fs7,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+    webServer: { register(r) { route7 = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on() { return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  await plugin.apply(ctx7);
+  const res = makeRes();
+  await route7.handler(makeReq('/usage-billing'), res);
+  const out = JSON.parse(res.body);
+  const spike = (out.alerts || []).find((a) => a.kind === 'spike');
+  check('今日花费远超近 7 日均值时产生突增提醒', !!spike && spike.spent === 12 && spike.avg7 === 0.5, JSON.stringify(out.alerts));
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);

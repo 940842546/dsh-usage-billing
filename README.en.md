@@ -14,6 +14,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Historical backfill**: on first start, scans local session logs to rebuild historical usage and cost, with session titles
 - **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak; **public holidays and make-up workdays are off-peak all day** — the holiday list is editable in settings, so the 2027 schedule can be added once published)
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
+- **Month forecast & spend-spike alert**: the budget bar shows the projected month-end total extrapolated from elapsed days; a once-a-day toast fires when today reaches 3x the 7-day average (and at least ¥1)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults
 - **Third-party model pricing**: official list prices for GLM / Grok / Hunyuan HY4 are built in (substring match, CNY or USD with conversion), so those calls no longer cost ¥0; rules are editable in settings. Kimi's official price table is not machine-readable yet, so add it manually.
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
