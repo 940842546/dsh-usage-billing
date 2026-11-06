@@ -74,6 +74,12 @@
 
 ## 已完成
 
+- **0.12.0** ① 内置 **2027 年**国务院放假安排（[国办发明电〔2026〕10号](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)），
+  与 2026 年合并成默认非高峰日。② 内置第三方模型官方标准价：GLM-5.3 / 5.3-Flash / 5.2（智谱）、
+  Grok-4.7 / 4.6（xAI，USD）、HY4 / HY4-preview（腾讯，CNY）；Kimi 官方价表无可抓取数字，未内置。
+  ③ 修复分类优先级：命中自定义价目的模型归入 `other`，不再因名字含 `flash` 被误按 DeepSeek 计价。
+  ④ `schemaVersion` 11→12：重启后自动按新价目重算历史（原子替换，不闪空）。
+
 - **0.11.0（Batch B）** 非 DeepSeek 模型计价：`config.customModels` 支持按模型名子串匹配的价目规则
   （CNY / USD，USD 按汇率折算成 CNY 入库），`other` 桶不再恒为 0；设置页可增删规则，
   含匹配顺序与说明。宿主端 25 条集成断言覆盖 CNY 与 USD 两种规则。

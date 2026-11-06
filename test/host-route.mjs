@@ -16,7 +16,7 @@ const files = new Map();
 const fixture = {
   version: 1,
   updatedAt: 1000,
-  meta: { liveSince: 1, lastBackfillAt: 0, lastBackfillSessions: 0, lastBackfillFound: 0, sessionAttribution: true, schemaVersion: 11 },
+  meta: { liveSince: 1, lastBackfillAt: 0, lastBackfillSessions: 0, lastBackfillFound: 0, sessionAttribution: true, schemaVersion: 12 },
   total: { calls: 10, input: 100, cacheHit: 50, cacheMiss: 50, output: 20, cost: 1.5 },
   byBand: {
     before: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
@@ -220,11 +220,11 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   let after = null;
   for (let i = 0; i < 100; i++) {
     after = await get2();
-    if (after.stats.meta && after.stats.meta.schemaVersion === 11 && after.stats.total.calls === 3) break;
+    if (after.stats.meta && after.stats.meta.schemaVersion === 12 && after.stats.total.calls === 3) break;
     await new Promise((r) => setTimeout(r, 5));
   }
   check('重建完成后统计被原子替换（7 → 3 次）', after.stats.total.calls === 3, `calls=${after.stats.total.calls}`);
-  check('重建后 schemaVersion=11', after.stats.meta.schemaVersion === 11);
+  check('重建后 schemaVersion=11', after.stats.meta.schemaVersion === 12);
   check('重建后会话带精确分布', !!after.stats.bySession.s1 && !!after.stats.bySession.s1.byBand && after.stats.bySession.s1.byModel.flash.calls === 3, JSON.stringify(after.stats.bySession.s1 && after.stats.bySession.s1.byBand));
   check('重建后标题已回填', after.stats.bySession.s1.title === '新标题');
 }
@@ -335,6 +335,121 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   // glm: 1e6 未命中 × 2 CNY = 2；grok: 1e6 未命中 × 2 USD × 7 = 14 → 合计 16
   check('非 DeepSeek 模型按自定义价目计费（CNY + USD 折算）', Math.abs(otherCost - 16) < 1e-6, `otherCost=${otherCost}`);
   check('other 桶调用数增加 2', after.stats.byModel.other.calls - before.stats.byModel.other.calls === 2);
+}
+
+// ── 11. 2027 节假日 + 内置官方价目 ──────────────────────────────────────────
+{
+  const files5 = new Map();
+  const path5 = ROOT + '/.dsh-usage-billing.json';
+  const f5 = JSON.parse(JSON.stringify(fixture));
+  // 不写 customModels / holidayDays：应分别回落到内置官方价目与内置节假日
+  f5.config = { usdCny: 7 };
+  files5.set(path5, JSON.stringify(f5));
+  const fs5 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files5.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files5.has(t.path)) throw new Error('ENOENT'); return files5.get(t.path); },
+    async writeText(t, c) { files5.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  let hook5 = null;
+  let route5 = null;
+  const ctx5 = {
+    fs: fs5,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+    webServer: { register(r) { route5 = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on(name, h) { if (name === 'llm/stream') hook5 = h; return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  await plugin.apply(ctx5);
+  const emit = async (model, usage, ts) => {
+    const stream = hook5({ model }, () => (async function* () { yield ts ? { type: 'usage', usage, ts } : { type: 'usage', usage }; })());
+    for await (const _ of stream) { /* drain */ }
+  };
+  const get5 = async () => {
+    const res = makeRes();
+    await route5.handler(makeReq('/usage-billing'), res);
+    return JSON.parse(res.body);
+  };
+
+  const before = await get5();
+  await emit('glm-5.3', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('glm-5.3-flash', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('grok-4.7', { inputTokens: 1000000, outputTokens: 0 });
+  const after = await get5();
+
+  const otherCost = after.stats.byModel.other.cost - before.stats.byModel.other.cost;
+  // 8（glm-5.3）+ 0.8（glm-5.3-flash，更具体的规则优先且不被误判为 DeepSeek flash）+ 14（grok-4.7：2 USD × 7）
+  check('内置官方价目生效且更具体的规则优先', Math.abs(otherCost - 22.8) < 1e-6, `otherCost=${otherCost}`);
+  check(
+    '名字含 flash 的第三方模型不被误判为 DeepSeek flash',
+    after.stats.byModel.flash.calls === before.stats.byModel.flash.calls,
+    `flashDelta=${after.stats.byModel.flash.calls - before.stats.byModel.flash.calls}`,
+  );
+}
+
+// ── 12. 2027 节假日按重建路径（可注入历史时间）验证 ─────────────────────────
+{
+  const files6 = new Map();
+  const path6 = ROOT + '/.dsh-usage-billing.json';
+  const f6 = JSON.parse(JSON.stringify(fixture));
+  f6.meta.schemaVersion = 10; // 强制重建，事件时间才会被采用
+  f6.config = { usdCny: 7 };
+  files6.set(path6, JSON.stringify(f6));
+  const fs6 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files6.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files6.has(t.path)) throw new Error('ENOENT'); return files6.get(t.path); },
+    async writeText(t, c) { files6.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  const sq6 = {
+    async listSessions() { return [{ header: { id: 'h1' } }]; },
+    async readSession() {
+      return { events: [
+        { type: 'request/header', data: { header: { config: { model: 'glm-5.3' } } } },
+        // 2027-01-01 10:00 北京（元旦，工作日）→ 空闲
+        { type: 'assistant/message', time: Date.UTC(2027, 0, 1, 2, 0, 0), data: { usage: { inputTokens: 1000, outputTokens: 100 } } },
+        // 2027-10-08 10:00 北京（周五，普通工作日）→ 高峰
+        { type: 'assistant/message', time: Date.UTC(2027, 9, 8, 2, 0, 0), data: { usage: { inputTokens: 1000, outputTokens: 100 } } },
+        // 2027-10-05 10:00 北京（国庆假期内）→ 空闲
+        { type: 'assistant/message', time: Date.UTC(2027, 9, 5, 2, 0, 0), data: { usage: { inputTokens: 1000, outputTokens: 100 } } },
+      ] };
+    },
+    async readTitle() { return undefined; },
+  };
+  let route6 = null;
+  const ctx6 = {
+    fs: fs6,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: sq6,
+    webServer: { register(r) { route6 = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on() { return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  await plugin.apply(ctx6);
+  const get6 = async () => {
+    const res = makeRes();
+    await route6.handler(makeReq('/usage-billing'), res);
+    return JSON.parse(res.body);
+  };
+  let out = null;
+  for (let i = 0; i < 100; i++) {
+    out = await get6();
+    if (out.stats.meta.schemaVersion === 12 && out.stats.total.calls === 3) break;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  check('2027 元旦按空闲计费', out.stats.byBand.sepOffPeak.calls === 2, `sepOffPeak=${out.stats.byBand.sepOffPeak.calls}`);
+  check('2027 普通工作日峰段仍计高峰', out.stats.byBand.sepPeak.calls === 1, `sepPeak=${out.stats.byBand.sepPeak.calls}`);
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);

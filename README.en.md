@@ -15,7 +15,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak; **public holidays and make-up workdays are off-peak all day** — the holiday list is editable in settings, so the 2027 schedule can be added once published)
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults
-- **Third-party model pricing**: glm / grok / hy4 and other non-DeepSeek models land in "other" and bill 0 by default; add custom pricing rules in settings (substring match on the model name, CNY or USD unit prices, USD converted by the exchange rate) so those calls produce real cost too
+- **Third-party model pricing**: official list prices for GLM / Grok / Hunyuan HY4 are built in (substring match, CNY or USD with conversion), so those calls no longer cost ¥0; rules are editable in settings. Kimi's official price table is not machine-readable yet, so add it manually.
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
 - **Official balance**: auto-detects the configured DeepSeek API key and fetches the official account balance (total / topped up / granted), refreshing every 10 minutes; silently skipped when no key is configured
 - **Balance runway**: estimates days left and the projected exhaust date from the 7-day average spend
@@ -102,11 +102,22 @@ Price table (CNY per million tokens):
 | Since 9/10 12:00 · off-peak | flash | 0.02 | 1 | 4 |
 | Since 9/10 12:00 · peak | flash | 0.04 | 2 | 8 |
 
-> Models are classified by name substring: names containing `flash` (the new `deepseek-flash` plus legacy `deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` — retired names are served by V4.1-Flash at Flash rates) are billed at flash rates, `pro` at pro rates, others as "unpriced / free".
+> Models are classified by name substring: names containing `flash` (the new `deepseek-flash` plus legacy `deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` — retired names are served by V4.1-Flash at Flash rates) are billed at flash rates, `pro` at pro rates, others as "unpriced / free". **A model matching a custom rule is billed by that rule and lands in "other"** (so `glm-5.3-flash` is not mistaken for DeepSeek flash).
 
 Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
-> Holiday billing: the 2026 State Council holiday schedule (holidays plus make-up workdays) is built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line, so the 2027 schedule can be added by hand once published — no plugin release needed.
+> Holiday billing: the **2026** ([State Council notice](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)) and **2027** ([notice](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)) schedules — holidays plus make-up workdays — are built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line for future years.
+
+Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; editable in settings):
+
+| Match | Currency | Cached hit | Uncached input | Output | Source |
+| --- | --- | --- | --- | --- | --- |
+| `glm-5.3-flash` | CNY | 0.23 | 0.8 | 2.8 | [Zhipu pricing](https://docs.bigmodel.cn/cn/guide/start/pricing) |
+| `glm-5.3` / `glm-5.2` | CNY | 2 | 8 | 28 | same |
+| `grok-4.7` / `grok-4.6` | USD | 0.5 | 2 | 6 | [xAI pricing](https://docs.x.ai/developers/pricing) (<200k context) |
+| `hy4-preview` / `hy4` | CNY | 0.3 | 6 | 18 | [Tencent TokenHub](https://cloud.tencent.com/document/product/1823/130055) (list price; a 50% promo applies until 2026-12-31) |
+
+> Kimi's official price table is rendered by a page script and yields no machine-readable numbers, so it is not built in; add it manually in settings if needed.
 
 ## Structure
 

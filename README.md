@@ -15,7 +15,7 @@
 - **分段计费**：按北京时间自动归入「调价前旧价 / 调价后高峰 / 调价后空闲」三段（2026-08-23 起高峰仅限工作日，周末全天空闲；此前周末同样计高峰；**法定节假日与调休上班日全天空闲**，节假日名单可在设置页编辑，2027 年安排公布后可自行增补）
 - **预算告警通知**：跨 80%/100% 阈值时桌面 toast 主动提醒（每日每档一次），进度条临近变橙、超支变红
 - **定价可配置**：价格表、高峰时段、调价边界日期、美元汇率均可编辑（改动只对后续调用生效），一键恢复默认
-- **第三方模型计价**：glm / grok / hy4 等非 DeepSeek 模型默认归入「其他模型」不计费；可在设置页添加自定义价目规则（模型名子串匹配，支持 CNY / USD 单价，USD 按汇率折算），之后这些调用也会产生真实花费
+- **第三方模型计价**：内置 GLM / Grok / 混元 HY4 的官方标准价（可按模型名子串匹配、CNY 或 USD，USD 按汇率折算），这些调用不再记为 ¥0；设置页可增删改规则。Kimi 的官方价表暂未提供可抓取的数字，需要手动添加。
 - **数据导出**：一键导出 CSV（按日 / 按会话，文件名含日期范围）或 JSON，便于对账
 - **官方余额拉取**：自动检测已配置的 DeepSeek API Key，拉取官方账户余额（总余额 / 充值 / 赠金），每 10 分钟自动刷新，未配置 Key 时静默跳过
 - **余额续航预估**：按近 7 天日均花费估算余额可用天数与预计耗尽日期
@@ -117,9 +117,20 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 | 9/10 12:00 后·空闲 | flash | 0.02 | 1 | 4 |
 | 9/10 12:00 后·高峰 | flash | 0.04 | 2 | 8 |
 
-> 模型按名称子串归类计价：名字含 `flash`（含新名 `deepseek-flash` 及旧名 `deepseek-v4-flash`、`deepseek-v4-flash-vision-exp`——旧名已下线、由 V4.1-Flash 服务并同价计费）按 flash 档，含 `pro` 按 pro 档，其余归入「未定价/免费」。
+> 模型按名称子串归类计价：名字含 `flash`（含新名 `deepseek-flash` 及旧名 `deepseek-v4-flash`、`deepseek-v4-flash-vision-exp`——旧名已下线、由 V4.1-Flash 服务并同价计费）按 flash 档，含 `pro` 按 pro 档，其余归入「未定价/免费」；**命中自定义价目的模型优先按自定义价计费并归入「其他模型」**（因此 `glm-5.3-flash` 不会被误判成 DeepSeek flash 档）。
 
-> 节假日计费：内置 2026 年国务院放假安排（[国办发明电〔2025〕7号](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)，含放假日期与调休上班日），命中即全天空闲；设置页「非高峰日」可编辑（每行一个 `YYYY-MM-DD`），2027 年安排公布后自行增补即可，无需等插件发版。
+> 节假日计费：内置 **2026 年**（[国办发明电〔2025〕7号](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)）与 **2027 年**（[国办发明电〔2026〕10号](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)）国务院放假安排，含放假日期与调休上班日，命中即全天空闲；设置页「非高峰日」可编辑（每行一个 `YYYY-MM-DD`），后续年份公布后可自行增补。
+
+内置第三方模型价目（元或美元 / 百万 tokens，2026-11 核对官方价；可在设置页改）：
+
+| 匹配 | 货币 | 缓存命中 | 未命中输入 | 输出 | 官方来源 |
+| --- | --- | --- | --- | --- | --- |
+| `glm-5.3-flash` | CNY | 0.23 | 0.8 | 2.8 | [智谱定价](https://docs.bigmodel.cn/cn/guide/start/pricing) |
+| `glm-5.3` / `glm-5.2` | CNY | 2 | 8 | 28 | 同上 |
+| `grok-4.7` / `grok-4.6` | USD | 0.5 | 2 | 6 | [xAI Pricing](https://docs.x.ai/developers/pricing)（<200k 上下文标准价） |
+| `hy4-preview` / `hy4` | CNY | 0.3 | 6 | 18 | [腾讯 TokenHub 价格](https://cloud.tencent.com/document/product/1823/130055)（目录价，官方五折活动期内实际更低） |
+
+> Kimi 的官方价表由页面脚本渲染、无法取得数字，故未内置；如需统计请在设置页手动添加。
 
 参考：[DeepSeek API 定价](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
