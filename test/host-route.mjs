@@ -1,5 +1,6 @@
 // 宿主端集成测试：用内存 fs 与桩服务加载插件，直接驱动 /usage-billing 路由，
 // 验证 view=alerts|dock、detail=<id> 与 ETag/304 的真实行为。
+import { readFileSync } from 'node:fs';
 import plugin from '../lib/index.js';
 
 let pass = 0, fail = 0;
@@ -507,6 +508,23 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
 
   const custom = await mk({ customModelsEdited: true, customModels: [{ match: 'mymodel', currency: 'cny', hit: 1, miss: 1, out: 1 }] });
   check('用户自定义过的价目被保留（不被内置覆盖）', custom.customModels.length === 1 && custom.customModels[0].match === 'mymodel', JSON.stringify(custom.customModels));
+
+  // 节假日：旧配置里只有 2026 名单（无来源标记）→ 应自动补上 2027
+  const legacyHolidayDates = (() => {
+    const src = readFileSync(new URL('../lib/index.js', import.meta.url), 'utf8');
+    const m = /const HOLIDAYS_2026 = \[([\s\S]*?)\n\];/.exec(src);
+    if (!m) return [];
+    return [...m[1].matchAll(/'(\d{4}-\d{2}-\d{2})'/g)].map((x) => x[1]);
+  })();
+  const legacyHolidays = await mk({ holidayDays: legacyHolidayDates });
+  check(
+    '旧配置只有 2026 节假日名单时自动补上 2027',
+    legacyHolidays.holidayDaysSource === 'builtin' && legacyHolidays.holidayDays.includes('2027-10-01') && legacyHolidays.holidayDays.length > legacyHolidayDates.length,
+    `source=${legacyHolidays.holidayDaysSource} len=${legacyHolidays.holidayDays.length}`,
+  );
+
+  const pinnedHolidays = await mk({ holidayDaysSource: 'user', holidayDays: ['2026-01-01'] });
+  check('用户改过节假日名单时保留', pinnedHolidays.holidayDays.length === 1 && pinnedHolidays.holidayDays[0] === '2026-01-01', JSON.stringify(pinnedHolidays.holidayDays));
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
