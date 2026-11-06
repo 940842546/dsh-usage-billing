@@ -15,6 +15,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak; **public holidays and make-up workdays are off-peak all day** — the holiday list is editable in settings, so the 2027 schedule can be added once published)
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults
+- **Third-party model pricing**: glm / grok / hy4 and other non-DeepSeek models land in "other" and bill 0 by default; add custom pricing rules in settings (substring match on the model name, CNY or USD unit prices, USD converted by the exchange rate) so those calls produce real cost too
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
 - **Official balance**: auto-detects the configured DeepSeek API key and fetches the official account balance (total / topped up / granted), refreshing every 10 minutes; silently skipped when no key is configured
 - **Balance runway**: estimates days left and the projected exhaust date from the 7-day average spend

@@ -74,6 +74,10 @@
 
 ## 已完成
 
+- **0.11.0（Batch B）** 非 DeepSeek 模型计价：`config.customModels` 支持按模型名子串匹配的价目规则
+  （CNY / USD，USD 按汇率折算成 CNY 入库），`other` 桶不再恒为 0；设置页可增删规则，
+  含匹配顺序与说明。宿主端 25 条集成断言覆盖 CNY 与 USD 两种规则。
+
 - **0.10.0（Batch A）** ① 会话级「时段/模型」精确聚合：`sessionBucket` 新增 `byBand`/`byModel`，
   路由支持 `?detail=<id>` 按需下发，详情面板优先使用精确分布（老数据回退 recent 近似）；
   `schemaVersion` 10→11，重启时从会话日志无损重建历史。② 轮询瘦身：新增

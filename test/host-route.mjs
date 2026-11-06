@@ -280,5 +280,62 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   check('重试后统计已成功落盘', saved.total.calls >= 11, `calls=${saved.total.calls}`);
 }
 
+// ── 10. 非 DeepSeek 模型按自定义价目计费 ────────────────────────────────────
+{
+  const files4 = new Map();
+  const path4 = ROOT + '/.dsh-usage-billing.json';
+  const f4 = JSON.parse(JSON.stringify(fixture));
+  f4.config = {
+    usdCny: 7,
+    customModels: [
+      { match: 'glm', currency: 'cny', hit: 0.5, miss: 2, out: 8 },
+      { match: 'grok', currency: 'usd', hit: 1, miss: 2, out: 4 },
+    ],
+  };
+  files4.set(path4, JSON.stringify(f4));
+  const fs4 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files4.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files4.has(t.path)) throw new Error('ENOENT'); return files4.get(t.path); },
+    async writeText(t, c) { files4.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  let hook4 = null;
+  let route4 = null;
+  const ctx4 = {
+    fs: fs4,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+    webServer: { register(r) { route4 = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on(name, h) { if (name === 'llm/stream') hook4 = h; return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  await plugin.apply(ctx4);
+
+  const emit = async (model, usage) => {
+    const stream = hook4({ model }, () => (async function* () { yield { type: 'usage', usage }; })());
+    for await (const _ of stream) { /* drain */ }
+  };
+  const get4 = async () => {
+    const res = makeRes();
+    await route4.handler(makeReq('/usage-billing'), res);
+    return JSON.parse(res.body);
+  };
+
+  const before = await get4();
+  await emit('glm-4.6', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('grok-4.7', { inputTokens: 1000000, outputTokens: 0 });
+  const after = await get4();
+
+  const otherCost = after.stats.byModel.other.cost - before.stats.byModel.other.cost;
+  // glm: 1e6 未命中 × 2 CNY = 2；grok: 1e6 未命中 × 2 USD × 7 = 14 → 合计 16
+  check('非 DeepSeek 模型按自定义价目计费（CNY + USD 折算）', Math.abs(otherCost - 16) < 1e-6, `otherCost=${otherCost}`);
+  check('other 桶调用数增加 2', after.stats.byModel.other.calls - before.stats.byModel.other.calls === 2);
+}
+
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
 process.exit(fail ? 1 : 0);
