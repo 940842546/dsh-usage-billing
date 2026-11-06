@@ -1,5 +1,5 @@
-// 截取某个元素附近的区域，便于细看样式。
-// 用法：node test/browser-clip.mjs <url> <outPng> <selector> [pad] [port] [waitMs]
+// 截取某个元素附近的区域；可选先点击一个元素（用于打开弹窗）。
+// 用法：node test/browser-clip.mjs <url> <outPng> <selector> [pad] [port] [waitMs] [clickSelector]
 import { writeFileSync } from 'node:fs';
 const url = process.argv[2];
 const out = process.argv[3];
@@ -7,6 +7,7 @@ const selector = process.argv[4] || 'body';
 const pad = Number(process.argv[5] || 16);
 const port = process.argv[6] || '9333';
 const waitMs = Number(process.argv[7] || 8000);
+const clickSel = process.argv[8] || '';
 const base = `http://127.0.0.1:${port}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -24,11 +25,17 @@ await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, de
 await send('Page.navigate', { url });
 await sleep(waitMs);
 
+if (clickSel) {
+  const ok = await evaluate(`(() => { const e = document.querySelector(${JSON.stringify(clickSel)}); if (!e) return false; e.click(); return true; })()`);
+  console.log('clicked', clickSel, ok);
+  await sleep(900);
+}
+
 const rect = await evaluate(`(() => {
   const el = document.querySelector(${JSON.stringify(selector)});
   if (!el) return null;
   const r = el.getBoundingClientRect();
-  return { x: r.left, y: r.top, w: r.width, h: r.height, text: el.innerText.replace(/\\s+/g,' ').slice(0,200) };
+  return { x: r.left, y: r.top, w: r.width, h: r.height, text: el.innerText.replace(/\\s+/g,' ').slice(0, 400) };
 })()`);
 if (!rect) { console.log('selector not found'); process.exit(2); }
 const clip = {
