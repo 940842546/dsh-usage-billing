@@ -121,7 +121,7 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 > 节假日计费：内置 **2026 年**（[国办发明电〔2025〕7号](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)）与 **2027 年**（[国办发明电〔2026〕10号](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)）国务院放假安排，含放假日期与调休上班日，命中即全天空闲；设置页「非高峰日」可编辑（每行一个 `YYYY-MM-DD`），后续年份公布后可自行增补。
 
-内置第三方模型价目（元或美元 / 百万 tokens，2026-11 核对官方价；共 49 条，设置页可增删改）：
+内置第三方模型价目（元或美元 / 百万 tokens，2026-11 渲染官方定价页核对；共 71 条，设置页可增删改）：
 
 | 厂商 | 内置匹配（节选） | 货币 | 说明 | 官方来源 |
 | --- | --- | --- | --- | --- |
@@ -130,8 +130,11 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 | 腾讯混元 | `hy4-preview`、`hy4` | CNY | 目录价（官方五折活动期内实际更低） | [腾讯 TokenHub](https://cloud.tencent.com/document/product/1823/130055) |
 | OpenAI | `gpt-6-astra`、`gpt-6.1-*`、`gpt-6-*`、`gpt-5.6-*`、`gpt-5.5*`、`gpt-5.4*`、`gpt-5.2*`、`gpt-5.1`、`gpt-5*`、`gpt-4.1*`、`gpt-4o*`、`o3` | USD | Standard、短上下文（≤272K） | [OpenAI Pricing](https://developers.openai.com/api/docs/pricing) |
 | Anthropic Claude | `claude-opus-5-5`、`claude-opus-5`、`claude-opus-4-*`、`claude-sonnet-5-*`、`claude-sonnet-4-*`、`claude-haiku-5-5`、`claude-haiku-4-5` | USD | 标准价（模型 ID 用连字符） | [Claude Pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
+| Moonshot Kimi | `kimi-k3.1-pro-highspeed`、`kimi-k3.1-pro`、`kimi-k3`、`kimi-k2.7-code*`、`kimi-k2.6` | CNY | highspeed 更贵，规则已排前 | [Kimi 定价](https://platform.kimi.com/docs/pricing/chat) |
+| Google Gemini | `gemini-4-argon`、`gemini-3.8-flash`、`gemini-3.6-flash`、`gemini-3.5-flash-lite`、`gemini-3.1-flash-lite`、`gemini-3.1-pro` | USD | Paid 层标准价；部分价格 2026-12/2027-01 起上调 | [Gemini Pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| 字节豆包 | `doubao-seed-evolving`、`doubao-seed-2.1-*`、`doubao-seed-2.0-*`、`doubao-seed-character`、`doubao-seed-translation` | CNY | 火山方舟在线推理标准价；长上下文取 [0,32K] 档 | [火山方舟价格](https://www.volcengine.com/docs/82379/1099320) |
 
-> 未内置：**Kimi**（官方价表由页面脚本渲染，取不到数字）、**Gemini**（官方定价页重定向到 JS 应用）、**豆包**（未核对到可抓取页面）。这些可在设置页手动添加规则；宁可不计，也不填猜测的数字。
+> 以上价格均从各厂商官方定价页**渲染后**读取（Kimi/Gemini 的表格是脚本渲染，静态 HTML 抓不到）。价格会调整，内置表只作为默认值，随时可在设置页修改；`customModelsSource` 会区分「沿用内置」与「用户自定义」，前者随插件升级自动更新。
 
 参考：[DeepSeek API 定价](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 

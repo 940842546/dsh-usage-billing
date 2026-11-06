@@ -108,7 +108,7 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 
 > Holiday billing: the **2026** ([State Council notice](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)) and **2027** ([notice](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)) schedules — holidays plus make-up workdays — are built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line for future years.
 
-Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; 49 rules, editable in settings):
+Built-in third-party prices (CNY or USD per 1M tokens, read from each vendor's rendered pricing page in 2026-11; 71 rules, editable in settings):
 
 | Vendor | Built-in matches (excerpt) | Currency | Notes | Source |
 | --- | --- | --- | --- | --- |
@@ -117,8 +117,11 @@ Built-in third-party prices (CNY or USD per 1M tokens, verified against official
 | Tencent Hunyuan | `hy4-preview`, `hy4` | CNY | list price (a 50% promo runs until 2026-12-31) | [Tencent TokenHub](https://cloud.tencent.com/document/product/1823/130055) |
 | OpenAI | `gpt-6-astra`, `gpt-6.1-*`, `gpt-6-*`, `gpt-5.6-*`, `gpt-5.5*`, `gpt-5.4*`, `gpt-5.2*`, `gpt-5.1`, `gpt-5*`, `gpt-4.1*`, `gpt-4o*`, `o3` | USD | Standard, short context (≤272K) | [OpenAI pricing](https://developers.openai.com/api/docs/pricing) |
 | Anthropic Claude | `claude-opus-5-5`, `claude-opus-5`, `claude-opus-4-*`, `claude-sonnet-5-*`, `claude-sonnet-4-*`, `claude-haiku-5-5`, `claude-haiku-4-5` | USD | standard rates (model ids use hyphens) | [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
+| Moonshot Kimi | `kimi-k3.1-pro-highspeed`, `kimi-k3.1-pro`, `kimi-k3`, `kimi-k2.7-code*`, `kimi-k2.6` | CNY | highspeed costs more and is listed first | [Kimi pricing](https://platform.kimi.com/docs/pricing/chat) |
+| Google Gemini | `gemini-4-argon`, `gemini-3.8-flash`, `gemini-3.6-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.1-pro` | USD | Paid-tier standard rates; some rise in 2026-12 / 2027-01 | [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| ByteDance Doubao | `doubao-seed-evolving`, `doubao-seed-2.1-*`, `doubao-seed-2.0-*`, `doubao-seed-character`, `doubao-seed-translation` | CNY | Volcengine Ark standard rates; long context uses the [0,32K] tier | [Volcengine pricing](https://www.volcengine.com/docs/82379/1099320) |
 
-> Not built in: **Kimi** (its official table is rendered by a page script), **Gemini** (the pricing page redirects to a JS app), **Doubao** (no scrapeable official page found). Add them manually in settings — no invented numbers.
+> Every price was read after rendering the vendor's own pricing page (the Kimi and Gemini tables are script-rendered, so static HTML has no numbers). Prices change: the built-in table is only a default and stays editable, and `customModelsSource` tracks whether a config still follows the built-ins or was customised.
 
 ## Structure
 

@@ -383,12 +383,16 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   await emit('grok-4.7', { inputTokens: 1000000, outputTokens: 0 });
   await emit('gpt-5.4', { inputTokens: 1000000, outputTokens: 0 });
   await emit('claude-sonnet-4-5', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('kimi-k3', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('gemini-3.8-flash', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('doubao-seed-2.0-pro', { inputTokens: 1000000, outputTokens: 0 });
   const after = await get5();
 
   const otherCost = after.stats.byModel.other.cost - before.stats.byModel.other.cost;
   // 8（glm-5.3）+ 0.8（glm-5.3-flash）+ 14（grok-4.7：2 USD × 7）
   // + 17.5（gpt-5.4：2.5 USD × 7）+ 21（claude-sonnet-4-5：3 USD × 7）
-  check('内置官方价目生效且更具体的规则优先', Math.abs(otherCost - 61.3) < 1e-6, `otherCost=${otherCost}`);
+  // + 20（kimi-k3）+ 5.25（gemini-3.8-flash：0.75 USD × 7）+ 3.2（doubao-seed-2.0-pro）
+  check('内置官方价目生效且更具体的规则优先', Math.abs(otherCost - 89.75) < 1e-6, `otherCost=${otherCost}`);
   check(
     '名字含 flash 的第三方模型不被误判为 DeepSeek flash',
     after.stats.byModel.flash.calls === before.stats.byModel.flash.calls,
@@ -499,7 +503,7 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
     { match: 'hy4', currency: 'cny', hit: 0.3, miss: 6, out: 18 },
   ];
   const legacy = await mk({ customModels: legacyRules });
-  check('0.12.0 的旧内置表自动升级为最新内置表', Array.isArray(legacy.customModels) && legacy.customModels.length === 49, `len=${legacy.customModels && legacy.customModels.length}`);
+  check('0.12.0 的旧内置表自动升级为最新内置表', Array.isArray(legacy.customModels) && legacy.customModels.length === 71, `len=${legacy.customModels && legacy.customModels.length}`);
 
   const custom = await mk({ customModelsEdited: true, customModels: [{ match: 'mymodel', currency: 'cny', hit: 1, miss: 1, out: 1 }] });
   check('用户自定义过的价目被保留（不被内置覆盖）', custom.customModels.length === 1 && custom.customModels[0].match === 'mymodel', JSON.stringify(custom.customModels));
