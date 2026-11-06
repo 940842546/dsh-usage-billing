@@ -70,6 +70,8 @@ const statsData = {
   budget: { daily: { spent: 5, limit: 20 }, monthly: { spent: 5, limit: 100 } },
   currency: 'cny',
   config: { usdCny: 6.7878 },
+  // 宿主 ?view=dock&detail=<id> 返回的精确分布：面板应优先使用它（而不是 recent 近似 0.2）
+  detail: { byBand: { sepOffPeak: { calls: 100, cost: 5 } }, byModel: { flash: { calls: 100, cost: 5 } } },
 };
 globalThis.fetch = (...args) => { console.log('  [fetch called]', String(args[0]).slice(0, 40)); return Promise.resolve({ json: () => Promise.resolve(statsData) }); };
 
@@ -110,7 +112,8 @@ function renderWithRefs(node) {
       getBoundingClientRect: () => ({ left: 500, top: 600, right: 700, bottom: 620, width: 200, height: 20 }),
     };
   }
-  if (Array.isArray(node.children)) node.children = node.children.map((c) => renderWithRefs(c));
+  // 元素继续展开，文本/数字等原始子节点原样保留（否则文本断言拿不到内容）
+  if (Array.isArray(node.children)) node.children = node.children.map((c) => (c && typeof c === 'object' ? renderWithRefs(c) : c));
   return node;
 }
 
@@ -166,8 +169,16 @@ if (triggers[0]) {
   check('分段条存在', segs.length >= 1, `got ${segs.length}`);
   const rings = findIn(tree, (n) => n.props && n.props.strokeDasharray);
   check('环形进度 circle 存在', rings.length === 1, `got ${rings.length}`);
-  // 明细行已验证 >=6；行文本由 i18n 词条提供（词典断言在源码层已覆盖）
-  check('环形进度 circle 存在（点击后）', findIn(tree, (n) => n.props && n.props.strokeDasharray).length === 1);
+  // 精确分布优先：data.detail 里 sepOffPeak cost=5 / calls=100，而 recent 只有 0.2 / 1 条
+  const texts = [];
+  const collect = (n) => {
+    if (!n || !n.$$el) return;
+    for (const c of n.children || []) if (typeof c === 'string') texts.push(c);
+    for (const c of n.children || []) if (c && typeof c === 'object') collect(c);
+  };
+  collect(tree);
+  const joined = texts.join(' | ');
+  check('时段花费使用宿主精确分布（¥5.0000 · 100）', joined.includes('¥5.0000 · 100'), joined.slice(0, 200));
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);

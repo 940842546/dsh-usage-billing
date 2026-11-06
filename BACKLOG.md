@@ -74,6 +74,13 @@
 
 ## 已完成
 
+- **0.10.0（Batch A）** ① 会话级「时段/模型」精确聚合：`sessionBucket` 新增 `byBand`/`byModel`，
+  路由支持 `?detail=<id>` 按需下发，详情面板优先使用精确分布（老数据回退 recent 近似）；
+  `schemaVersion` 10→11，重启时从会话日志无损重建历史。② 轮询瘦身：新增
+  `?view=dock|card|alerts` 精简视图（dock ~2KB vs 全量 49KB），客户端按 URL 共享通道
+  （同一 URL 只有一个定时器），响应带 `ETag` + `If-None-Match`，未变化返回 304。
+  ③ CSV 公式注入防护（`= + - @` 前缀转义）。
+
 - **0.9.7** 视觉与可访问性打磨：语义色/阴影/圆角全部走宿主 token（明暗主题一致）、`focus-visible` 焦点环、
   面板入场动画 + `prefers-reduced-motion`、中文 token 单位改为「万/亿」、清理死 CSS。
 - **0.9.6** 面板掉到屏幕下方：`react-dom` portal 到 `document.body`（输入框祖先 `will-change: transform` 造成包含块）+ 面板高度钳制与滚动 + 无 portal 时的 offsetParent 坐标补偿。
