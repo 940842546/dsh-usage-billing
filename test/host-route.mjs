@@ -150,5 +150,135 @@ check('全量 + detail 附带该会话分布', !!fdJson.detail && !!fdJson.detai
 const bad = await get('/usage-billing?view=dock&detail=nope');
 check('未知会话 id 仍返回 200', bad.statusCode === 200);
 
+// ── 8. 旧 schema 重建：期间保持旧数据，完成后原子替换 ───────────────────────────
+{
+  const files2 = new Map();
+  const oldFile = ROOT + '/.dsh-usage-billing.json';
+  const oldFixture = {
+    version: 1, updatedAt: 500,
+    meta: { liveSince: 1, lastBackfillAt: 0, lastBackfillSessions: 0, lastBackfillFound: 0, sessionAttribution: true, schemaVersion: 10 },
+    total: { calls: 7, input: 70, cacheHit: 35, cacheMiss: 35, output: 14, cost: 1.1 },
+    byBand: {
+      before: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+      afterPeak: { calls: 7, input: 70, cacheHit: 35, cacheMiss: 35, output: 14, cost: 1.1 },
+      afterOffPeak: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+      sepPeak: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+      sepOffPeak: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+    },
+    byModel: {
+      flash: { calls: 7, input: 70, cacheHit: 35, cacheMiss: 35, output: 14, cost: 1.1 },
+      pro: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+      other: { calls: 0, input: 0, cacheHit: 0, cacheMiss: 0, output: 0, cost: 0 },
+    },
+    bySession: { s1: { calls: 7, input: 70, cacheHit: 35, cacheMiss: 35, output: 14, cost: 1.1, lastAt: 400, title: '旧标题' } },
+    byDay: {}, byHour: {}, recent: [], config: {},
+  };
+  files2.set(oldFile, JSON.stringify(oldFixture));
+
+  const fs2 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files2.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files2.has(t.path)) throw new Error('ENOENT'); return files2.get(t.path); },
+    async writeText(t, c) { files2.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  const sq2 = {
+    async listSessions() { return [{ header: { id: 's1' } }]; },
+    async readSession() {
+      return { events: [
+        { type: 'request/header', data: { header: { config: { model: 'deepseek-flash' } } } },
+        { type: 'assistant/message', time: 1000, data: { usage: { inputTokens: 10, outputTokens: 2 } } },
+        { type: 'assistant/message', time: 2000, data: { usage: { inputTokens: 10, outputTokens: 2 } } },
+        { type: 'assistant/message', time: 3000, data: { usage: { inputTokens: 10, outputTokens: 2 } } },
+      ] };
+    },
+    async readTitle() { return { title: '新标题' }; },
+  };
+  let route2 = null;
+  const ctx2 = {
+    fs: fs2,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: sq2,
+    webServer: { register(r) { route2 = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on() { return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  await plugin.apply(ctx2);
+  const get2 = async () => {
+    const res = makeRes();
+    await route2.handler(makeReq('/usage-billing'), res);
+    return JSON.parse(res.body);
+  };
+
+  const during = await get2();
+  check('旧 schema 重建期间仍返回旧统计（不清零）', during.stats.total.calls === 7 && during.stats.bySession.s1, `calls=${during.stats.total && during.stats.total.calls}`);
+
+  let after = null;
+  for (let i = 0; i < 100; i++) {
+    after = await get2();
+    if (after.stats.meta && after.stats.meta.schemaVersion === 11 && after.stats.total.calls === 3) break;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  check('重建完成后统计被原子替换（7 → 3 次）', after.stats.total.calls === 3, `calls=${after.stats.total.calls}`);
+  check('重建后 schemaVersion=11', after.stats.meta.schemaVersion === 11);
+  check('重建后会话带精确分布', !!after.stats.bySession.s1 && !!after.stats.bySession.s1.byBand && after.stats.bySession.s1.byModel.flash.calls === 3, JSON.stringify(after.stats.bySession.s1 && after.stats.bySession.s1.byBand));
+  check('重建后标题已回填', after.stats.bySession.s1.title === '新标题');
+}
+
+// ── 9. 写盘被占用（Win32 1175）时重试并最终成功 ─────────────────────────────
+{
+  const files3 = new Map();
+  const writeAttempts = [];
+  let failMainWrites = 2;
+  const statsPath = ROOT + '/.dsh-usage-billing.json';
+  files3.set(statsPath, JSON.stringify(fixture));
+
+  const fs3 = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return files3.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!files3.has(t.path)) throw new Error('ENOENT'); return files3.get(t.path); },
+    async writeText(t, c) {
+      const isMain = t.path === statsPath;
+      if (isMain) writeAttempts.push(t.path);
+      if (isMain && failMainWrites > 0) {
+        failMainWrites--;
+        throw new Error('cannot write: ReplaceFileW EIO (Win32 1175)');
+      }
+      files3.set(t.path, c);
+      return { ok: true };
+    },
+    async listDir() { return []; },
+  };
+  let streamHook3 = null;
+  const ctx3 = {
+    fs: fs3,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+    webServer: { register() { return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on(name, h) { if (name === 'llm/stream') streamHook3 = h; return () => {}; },
+    interval() { return () => {}; },
+    timeout(fn, ms) { const t = setTimeout(fn, ms); return () => clearTimeout(t); },
+  };
+  await plugin.apply(ctx3);
+
+  // 触发一次真实调用记录 → 1.5s 后触发 scheduleSave
+  const stream = streamHook3({ model: 'deepseek-flash' }, () => (async function* () {
+    yield { type: 'usage', usage: { inputTokens: 10, outputTokens: 2 } };
+  })());
+  for await (const _ of stream) { /* drain */ }
+  await new Promise((r) => setTimeout(r, 1900));
+
+  check('写盘失败后自动重试（>=3 次尝试）', writeAttempts.length >= 3, `attempts=${writeAttempts.length}`);
+  const saved = JSON.parse(files3.get(statsPath));
+  check('重试后统计已成功落盘', saved.total.calls >= 11, `calls=${saved.total.calls}`);
+}
+
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
 process.exit(fail ? 1 : 0);
