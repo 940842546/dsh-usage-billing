@@ -381,11 +381,14 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   await emit('glm-5.3', { inputTokens: 1000000, outputTokens: 0 });
   await emit('glm-5.3-flash', { inputTokens: 1000000, outputTokens: 0 });
   await emit('grok-4.7', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('gpt-5.4', { inputTokens: 1000000, outputTokens: 0 });
+  await emit('claude-sonnet-4-5', { inputTokens: 1000000, outputTokens: 0 });
   const after = await get5();
 
   const otherCost = after.stats.byModel.other.cost - before.stats.byModel.other.cost;
-  // 8（glm-5.3）+ 0.8（glm-5.3-flash，更具体的规则优先且不被误判为 DeepSeek flash）+ 14（grok-4.7：2 USD × 7）
-  check('内置官方价目生效且更具体的规则优先', Math.abs(otherCost - 22.8) < 1e-6, `otherCost=${otherCost}`);
+  // 8（glm-5.3）+ 0.8（glm-5.3-flash）+ 14（grok-4.7：2 USD × 7）
+  // + 17.5（gpt-5.4：2.5 USD × 7）+ 21（claude-sonnet-4-5：3 USD × 7）
+  check('内置官方价目生效且更具体的规则优先', Math.abs(otherCost - 61.3) < 1e-6, `otherCost=${otherCost}`);
   check(
     '名字含 flash 的第三方模型不被误判为 DeepSeek flash',
     after.stats.byModel.flash.calls === before.stats.byModel.flash.calls,

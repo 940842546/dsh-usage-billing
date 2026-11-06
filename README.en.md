@@ -108,16 +108,17 @@ Reference: [DeepSeek API pricing](https://api-docs.deepseek.com/zh-cn/quick_star
 
 > Holiday billing: the **2026** ([State Council notice](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)) and **2027** ([notice](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)) schedules — holidays plus make-up workdays — are built in; a matching date bills off-peak all day. The "Off-peak dates" editor in settings accepts one `YYYY-MM-DD` per line for future years.
 
-Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; editable in settings):
+Built-in third-party prices (CNY or USD per 1M tokens, verified against official pages in 2026-11; 44 rules, editable in settings):
 
-| Match | Currency | Cached hit | Uncached input | Output | Source |
-| --- | --- | --- | --- | --- | --- |
-| `glm-5.3-flash` | CNY | 0.23 | 0.8 | 2.8 | [Zhipu pricing](https://docs.bigmodel.cn/cn/guide/start/pricing) |
-| `glm-5.3` / `glm-5.2` | CNY | 2 | 8 | 28 | same |
-| `grok-4.7` / `grok-4.6` | USD | 0.5 | 2 | 6 | [xAI pricing](https://docs.x.ai/developers/pricing) (<200k context) |
-| `hy4-preview` / `hy4` | CNY | 0.3 | 6 | 18 | [Tencent TokenHub](https://cloud.tencent.com/document/product/1823/130055) (list price; a 50% promo applies until 2026-12-31) |
+| Vendor | Built-in matches (excerpt) | Currency | Notes | Source |
+| --- | --- | --- | --- | --- |
+| Zhipu GLM | `glm-5.3-flash`, `glm-5.3`, `glm-5.2` | CNY | hit 0.23–2 / input 0.8–8 / output 2.8–28 | [Zhipu pricing](https://docs.bigmodel.cn/cn/guide/start/pricing) |
+| xAI Grok | `grok-4.7`, `grok-4.6` | USD | <200k context standard rate | [xAI pricing](https://docs.x.ai/developers/pricing) |
+| Tencent Hunyuan | `hy4-preview`, `hy4` | CNY | list price (a 50% promo runs until 2026-12-31) | [Tencent TokenHub](https://cloud.tencent.com/document/product/1823/130055) |
+| OpenAI | `gpt-6-astra`, `gpt-6.1-*`, `gpt-6-*`, `gpt-5.6-*`, `gpt-5.5*`, `gpt-5.4*`, `gpt-5.2*`, `gpt-5.1`, `gpt-5*`, `gpt-4.1*`, `gpt-4o*`, `o3` | USD | Standard, short context (≤272K) | [OpenAI pricing](https://developers.openai.com/api/docs/pricing) |
+| Anthropic Claude | `claude-opus-5-5`, `claude-opus-5`, `claude-opus-4-*`, `claude-sonnet-5-*`, `claude-sonnet-4-*`, `claude-haiku-5-5`, `claude-haiku-4-5` | USD | standard rates (model ids use hyphens) | [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
 
-> Kimi's official price table is rendered by a page script and yields no machine-readable numbers, so it is not built in; add it manually in settings if needed.
+> Not built in: **Kimi** (its official table is rendered by a page script), **Gemini** (the pricing page redirects to a JS app), **Doubao** (no scrapeable official page found). Add them manually in settings — no invented numbers.
 
 ## Structure
 

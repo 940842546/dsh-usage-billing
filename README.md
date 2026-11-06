@@ -121,16 +121,17 @@ npm 包：https://www.npmjs.com/package/dsh-usage-billing
 
 > 节假日计费：内置 **2026 年**（[国办发明电〔2025〕7号](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm)）与 **2027 年**（[国办发明电〔2026〕10号](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)）国务院放假安排，含放假日期与调休上班日，命中即全天空闲；设置页「非高峰日」可编辑（每行一个 `YYYY-MM-DD`），后续年份公布后可自行增补。
 
-内置第三方模型价目（元或美元 / 百万 tokens，2026-11 核对官方价；可在设置页改）：
+内置第三方模型价目（元或美元 / 百万 tokens，2026-11 核对官方价；共 44 条，设置页可增删改）：
 
-| 匹配 | 货币 | 缓存命中 | 未命中输入 | 输出 | 官方来源 |
-| --- | --- | --- | --- | --- | --- |
-| `glm-5.3-flash` | CNY | 0.23 | 0.8 | 2.8 | [智谱定价](https://docs.bigmodel.cn/cn/guide/start/pricing) |
-| `glm-5.3` / `glm-5.2` | CNY | 2 | 8 | 28 | 同上 |
-| `grok-4.7` / `grok-4.6` | USD | 0.5 | 2 | 6 | [xAI Pricing](https://docs.x.ai/developers/pricing)（<200k 上下文标准价） |
-| `hy4-preview` / `hy4` | CNY | 0.3 | 6 | 18 | [腾讯 TokenHub 价格](https://cloud.tencent.com/document/product/1823/130055)（目录价，官方五折活动期内实际更低） |
+| 厂商 | 内置匹配（节选） | 货币 | 说明 | 官方来源 |
+| --- | --- | --- | --- | --- |
+| 智谱 GLM | `glm-5.3-flash`、`glm-5.3`、`glm-5.2` | CNY | 命中 0.23–2 / 输入 0.8–8 / 输出 2.8–28 | [智谱定价](https://docs.bigmodel.cn/cn/guide/start/pricing) |
+| xAI Grok | `grok-4.7`、`grok-4.6` | USD | <200k 上下文标准价 | [xAI Pricing](https://docs.x.ai/developers/pricing) |
+| 腾讯混元 | `hy4-preview`、`hy4` | CNY | 目录价（官方五折活动期内实际更低） | [腾讯 TokenHub](https://cloud.tencent.com/document/product/1823/130055) |
+| OpenAI | `gpt-6-astra`、`gpt-6.1-*`、`gpt-6-*`、`gpt-5.6-*`、`gpt-5.5*`、`gpt-5.4*`、`gpt-5.2*`、`gpt-5.1`、`gpt-5*`、`gpt-4.1*`、`gpt-4o*`、`o3` | USD | Standard、短上下文（≤272K） | [OpenAI Pricing](https://developers.openai.com/api/docs/pricing) |
+| Anthropic Claude | `claude-opus-5-5`、`claude-opus-5`、`claude-opus-4-*`、`claude-sonnet-5-*`、`claude-sonnet-4-*`、`claude-haiku-5-5`、`claude-haiku-4-5` | USD | 标准价（模型 ID 用连字符） | [Claude Pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
 
-> Kimi 的官方价表由页面脚本渲染、无法取得数字，故未内置；如需统计请在设置页手动添加。
+> 未内置：**Kimi**（官方价表由页面脚本渲染，取不到数字）、**Gemini**（官方定价页重定向到 JS 应用）、**豆包**（未核对到可抓取页面）。这些可在设置页手动添加规则；宁可不计，也不填猜测的数字。
 
 参考：[DeepSeek API 定价](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
