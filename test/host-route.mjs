@@ -273,7 +273,7 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
     yield { type: 'usage', usage: { inputTokens: 10, outputTokens: 2 } };
   })());
   for await (const _ of stream) { /* drain */ }
-  await new Promise((r) => setTimeout(r, 1900));
+  await new Promise((r) => setTimeout(r, 2600));
 
   check('写盘失败后自动重试（>=3 次尝试）', writeAttempts.length >= 3, `attempts=${writeAttempts.length}`);
   const saved = JSON.parse(files3.get(statsPath));
@@ -453,6 +453,56 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   }
   check('2027 元旦按空闲计费', out.stats.byBand.sepOffPeak.calls === 2, `sepOffPeak=${out.stats.byBand.sepOffPeak.calls}`);
   check('2027 普通工作日峰段仍计高峰', out.stats.byBand.sepPeak.calls === 1, `sepPeak=${out.stats.byBand.sepPeak.calls}`);
+}
+
+// ── 13. 内置价目升级：未改过的配置自动刷新，改过的保留 ─────────────────────
+{
+  const mk = async (config) => {
+    const filesX = new Map();
+    const pathX = ROOT + '/.dsh-usage-billing.json';
+    const fx = JSON.parse(JSON.stringify(fixture));
+    fx.config = config;
+    filesX.set(pathX, JSON.stringify(fx));
+    const fsX = {
+      async resolve(p) { return { path: p }; },
+      async stat(t) { return filesX.has(t.path) ? { size: 1 } : undefined; },
+      async readText(t) { if (!filesX.has(t.path)) throw new Error('ENOENT'); return filesX.get(t.path); },
+      async writeText(t, c) { filesX.set(t.path, c); return { ok: true }; },
+      async listDir() { return []; },
+    };
+    let routeX = null;
+    const ctxX = {
+      fs: fsX,
+      sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+      sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+      webServer: { register(r) { routeX = r; return () => {}; } },
+      tools: { register() { return () => {}; } },
+      get() { return undefined; },
+      effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+      on() { return () => {}; },
+      interval() { return () => {}; },
+      timeout() { return () => {}; },
+    };
+    await plugin.apply(ctxX);
+    const res = makeRes();
+    await routeX.handler(makeReq('/usage-billing'), res);
+    return JSON.parse(res.body).config;
+  };
+
+  const legacyRules = [
+    { match: 'glm-5.3-flash', currency: 'cny', hit: 0.23, miss: 0.8, out: 2.8 },
+    { match: 'glm-5.3', currency: 'cny', hit: 2, miss: 8, out: 28 },
+    { match: 'glm-5.2', currency: 'cny', hit: 2, miss: 8, out: 28 },
+    { match: 'grok-4.7', currency: 'usd', hit: 0.5, miss: 2, out: 6 },
+    { match: 'grok-4.6', currency: 'usd', hit: 0.5, miss: 2, out: 6 },
+    { match: 'hy4-preview', currency: 'cny', hit: 0.3, miss: 6, out: 18 },
+    { match: 'hy4', currency: 'cny', hit: 0.3, miss: 6, out: 18 },
+  ];
+  const legacy = await mk({ customModels: legacyRules });
+  check('0.12.0 的旧内置表自动升级为最新内置表', Array.isArray(legacy.customModels) && legacy.customModels.length === 49, `len=${legacy.customModels && legacy.customModels.length}`);
+
+  const custom = await mk({ customModelsEdited: true, customModels: [{ match: 'mymodel', currency: 'cny', hit: 1, miss: 1, out: 1 }] });
+  check('用户自定义过的价目被保留（不被内置覆盖）', custom.customModels.length === 1 && custom.customModels[0].match === 'mymodel', JSON.stringify(custom.customModels));
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
