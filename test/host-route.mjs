@@ -147,6 +147,22 @@ const fullDetail = await get('/usage-billing?detail=s2');
 const fdJson = JSON.parse(fullDetail.body);
 check('全量 + detail 附带该会话分布', !!fdJson.detail && !!fdJson.detail.byBand, JSON.stringify(fdJson.detail));
 
+// 7b. usage_billing 工具的新维度
+{
+  const grouped = await toolDef.execute({ group: 'model', limit: 2 });
+  check('工具 group=model 返回花费排行', !!grouped.group && grouped.group.rows.length === 2 && grouped.group.rows[0].key === 'flash' && grouped.group.rows[0].cost >= grouped.group.rows[1].cost, JSON.stringify(grouped.group && grouped.group.rows));
+  const bySession = await toolDef.execute({ group: 'session', limit: 3 });
+  check('工具 group=session 返回会话排行', !!bySession.group && bySession.group.rows.length >= 2, JSON.stringify(bySession.group && bySession.group.rows.map((r) => r.key)));
+  const found = await toolDef.execute({ session: '会话一' });
+  check(
+    '工具 session 按标题筛选并附分布',
+    !!found.sessions && found.sessions.matched === 1 && found.sessions.rows[0].id === 's1' && !!found.sessions.rows[0].byBand.sepOffPeak,
+    JSON.stringify(found.sessions && found.sessions.rows[0] && found.sessions.rows[0].byBand),
+  );
+  const limited = await toolDef.execute({ group: 'day', limit: 1 });
+  check('工具 limit 生效', !!limited.group && limited.group.rows.length === 1, JSON.stringify(limited.group && limited.group.rows.length));
+}
+
 // 7. 无效 detail 不崩
 const bad = await get('/usage-billing?view=dock&detail=nope');
 check('未知会话 id 仍返回 200', bad.statusCode === 200);

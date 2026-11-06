@@ -74,6 +74,9 @@
 
 ## 已完成
 
+- **0.13.0（C1）** `usage_billing` 工具扩展：新增 `group`（band/model/session/day 花费排行）、
+  `session`（按 id 或标题筛选，返回该会话的时段/模型分布）、`limit`（条数上限）。
+
 - **0.12.0** ① 内置 **2027 年**国务院放假安排（[国办发明电〔2026〕10号](https://www.gov.cn/zhengce/content/202611/content_7085101.htm)），
   与 2026 年合并成默认非高峰日。② 内置第三方模型官方标准价：GLM-5.3 / 5.3-Flash / 5.2（智谱）、
   Grok-4.7 / 4.6（xAI，USD）、HY4 / HY4-preview（腾讯，CNY）；Kimi 官方价表无可抓取数字，未内置。
