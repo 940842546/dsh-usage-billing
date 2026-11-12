@@ -20,6 +20,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Export**: one-click CSV (daily / per-session, filename includes the date range) or JSON export for accounting
 - **Official balance**: auto-detects the configured DeepSeek API key and fetches the official account balance (total / topped up / granted), refreshing every 10 minutes; silently skipped when no key is configured
 - **Balance runway**: estimates days left and the projected exhaust date from the 7-day average spend
+- **Low-balance alert**: one alert when the balance drops below the threshold (default 20, empty disables), and another when it falls under half (at most two per day)
 - **Alert history**: recent budget alerts listed in the settings page
 - **Daily trend chart**: 30-day daily cost bars in the settings page
 - **More robust storage**: writes keep a .tmp copy and auto-recover from it when the main file is corrupt; multi-instance heartbeat detection warns about concurrent writes

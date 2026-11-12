@@ -9,6 +9,11 @@ function check(name, cond, extra) {
   else { fail++; console.log(`FAIL  ${name}${extra ? ' :: ' + String(extra).slice(0, 300) : ''}`); }
 }
 
+const bjToday = (() => {
+  const d = new Date(Date.now() + 8 * 3600000);
+  const p2 = (x) => (x < 10 ? '0' + x : String(x));
+  return d.getUTCFullYear() + '-' + p2(d.getUTCMonth() + 1) + '-' + p2(d.getUTCDate());
+})();
 const ROOT = 'mem://root';
 const statsFile = ROOT + '/.dsh-usage-billing.json';
 const files = new Map();
@@ -39,7 +44,7 @@ const fixture = {
     },
     s2: { calls: 3, input: 30, cacheHit: 15, cacheMiss: 15, output: 6, cost: 0.4, lastAt: 800, title: '会话二', byBand: {}, byModel: {} },
   },
-  byDay: { '2026-11-06': { calls: 10, input: 100, cacheHit: 50, cacheMiss: 50, output: 20, cost: 1.5 } },
+  byDay: { [bjToday]: { calls: 10, input: 100, cacheHit: 50, cacheMiss: 50, output: 20, cost: 1.5 } },
   byHour: {},
   recent: [{ ts: 1000, time: '10:00:00', model: 'deepseek-flash', modelKey: 'flash', band: 'sepOffPeak', sessionId: 's1', input: 10, cacheHit: 5, cacheMiss: 5, output: 2, cost: 0.1 }],
   config: {},
@@ -139,7 +144,7 @@ const dockJson = JSON.parse(dock.body);
 check('view=dock 200 且体积显著小于全量', dock.statusCode === 200 && dock.body.length < full.body.length / 3, `dock=${dock.body.length} full=${full.body.length}`);
 check('dock 只带该会话', !!dockJson.stats.bySession.s1 && !dockJson.stats.bySession.s2);
 check('dock 带该会话精确分布 detail.byBand', !!dockJson.detail && !!dockJson.detail.byBand && dockJson.detail.byBand.sepOffPeak && dockJson.detail.byBand.sepOffPeak.cost === 1.1, JSON.stringify(dockJson.detail));
-check('dock 带今日桶', !!dockJson.stats.byDay['2026-11-06']);
+check('dock 带今日桶', !!dockJson.stats.byDay[bjToday]);
 check('dock 不含 balance/diag', !('balance' in dockJson) && !('diag' in dockJson));
 
 // 5. card 视图
@@ -558,6 +563,13 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
 
   const pinnedHolidays = await mk({ holidayDaysSource: 'user', holidayDays: ['2026-01-01'] });
   check('用户改过节假日名单时保留', pinnedHolidays.holidayDays.length === 1 && pinnedHolidays.holidayDays[0] === '2026-01-01', JSON.stringify(pinnedHolidays.holidayDays));
+
+  const balCfg = await mk({ balanceAlertBelow: 50 });
+  check('余额提醒阈值可配置', balCfg.balanceAlertBelow === 50, String(balCfg.balanceAlertBelow));
+  const balOff = await mk({ balanceAlertBelow: '' });
+  check('余额提醒阈值留空即关闭', balOff.balanceAlertBelow === null, String(balOff.balanceAlertBelow));
+  const balDefault = await mk({});
+  check('余额提醒阈值默认 20', balDefault.balanceAlertBelow === 20, String(balDefault.balanceAlertBelow));
 }
 
 // ── 14. 单日花费突增提醒 ────────────────────────────────────────────────────
