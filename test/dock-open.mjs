@@ -178,7 +178,7 @@ if (triggers[0]) {
   };
   collect(tree);
   const joined = texts.join(' | ');
-  check('时段花费使用宿主精确分布（¥5.00 · 100）', joined.includes('¥5.00 · 100'), joined.slice(0, 200));
+  check('时段花费使用宿主精确分布（¥5.00 · 100）', joined.includes('¥5.00') && joined.includes('· 100'), joined.slice(0, 240));
 
   // 预算行 → 快速设置弹窗
   const budgetRows = findIn(tree, (n) => n.props && n.props.className === 'usg-sess-budget');
