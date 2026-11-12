@@ -13,6 +13,7 @@ A **build-free** dual-face plugin for DeepSeek Harness: tracks every DeepSeek mo
 - **Automatic tracking**: listens to `llm/stream` and records every model call (input / output / cache hit / cache miss tokens)
 - **Historical backfill**: on first start, scans local session logs to rebuild historical usage and cost, with session titles
 - **Tiered billing**: each call falls into "pre-change · legacy", "post-change · peak", or "post-change · off-peak" by Beijing time (since 2026-08-23, peak applies on weekdays only; before that weekends also counted as peak; **public holidays and make-up workdays are off-peak all day** — the holiday list is editable in settings, so the 2027 schedule can be added once published)
+- **Inline budget editor**: the "daily budget used" row in the detail panel opens a small dialog to set daily/monthly budgets (empty = no limit), applied immediately
 - **Budget alert notifications**: desktop toast when crossing 80%/100% thresholds (once per threshold per day), plus progress bars (orange near 80%, red when over)
 - **Month forecast & spend-spike alert**: the overlay and settings always show "this month · projected month-end · 7-day average" (linear extrapolation, no budget required); a once-a-day toast fires when today reaches 3x the 7-day average (and at least ¥1)
 - **Configurable pricing**: price table, peak hours, boundary date, and USD exchange rate are all editable (changes apply to subsequent calls only), with one-click reset to defaults

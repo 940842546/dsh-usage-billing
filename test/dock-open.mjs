@@ -179,6 +179,21 @@ if (triggers[0]) {
   collect(tree);
   const joined = texts.join(' | ');
   check('时段花费使用宿主精确分布（¥5.00 · 100）', joined.includes('¥5.00 · 100'), joined.slice(0, 200));
+
+  // 预算行 → 快速设置弹窗
+  const budgetRows = findIn(tree, (n) => n.props && n.props.className === 'usg-sess-budget');
+  check('面板底部预算行是可点击按钮', budgetRows.length === 1 && typeof budgetRows[0].props.onClick === 'function', `got ${budgetRows.length}`);
+  if (budgetRows[0]) {
+    budgetRows[0].props.onClick();
+    tree = render();
+    const editors = findIn(tree, (n) => n.props && n.props.className === 'usg-be');
+    check('点击预算行弹出设置弹窗', editors.length === 1, `got ${editors.length}`);
+    const inputs = findIn(tree, (n) => n.props && n.props.type === 'number');
+    check('弹窗含日/月两个数字输入', inputs.length === 2, `got ${inputs.length}`);
+    check('输入预填当前预算（20 / 100）', inputs[0] && inputs[0].props.value === '20' && inputs[1] && inputs[1].props.value === '100', JSON.stringify(inputs.map((i) => i.props.value)));
+    const actions = findIn(tree, (n) => n.props && typeof n.props.onClick === 'function' && n.props.className && String(n.props.className).startsWith('usg-btn'));
+    check('弹窗含保存/取消按钮', actions.length === 2, `got ${actions.length}`);
+  }
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);

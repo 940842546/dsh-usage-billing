@@ -615,5 +615,61 @@ check('未知会话 id 仍返回 200', bad.statusCode === 200);
   check('今日花费远超近 7 日均值时产生突增提醒', !!spike && spike.spent === 12 && spike.avg7 === 0.5, JSON.stringify(out.alerts));
 }
 
+// ── 15. 面板内快速设置预算（只改两个字段） ────────────────────────────────
+{
+  const filesX = new Map();
+  const pathX = ROOT + '/.dsh-usage-billing.json';
+  filesX.set(pathX, JSON.stringify(fixture));
+  const fsX = {
+    async resolve(p) { return { path: p }; },
+    async stat(t) { return filesX.has(t.path) ? { size: 1 } : undefined; },
+    async readText(t) { if (!filesX.has(t.path)) throw new Error('ENOENT'); return filesX.get(t.path); },
+    async writeText(t, c) { filesX.set(t.path, c); return { ok: true }; },
+    async listDir() { return []; },
+  };
+  let routeX = null;
+  const ctxX = {
+    fs: fsX,
+    sandboxPolicy: { workspaceRoot: ROOT, defaultMode: 'workspace-write', resolve() { return { mode: 'workspace-write', workspaceRoot: ROOT }; }, overrideOf() { return undefined; } },
+    sessionQuery: { async listSessions() { return []; }, async readSession() { throw new Error('none'); }, async readTitle() { return undefined; } },
+    webServer: { register(r) { routeX = r; return () => {}; } },
+    tools: { register() { return () => {}; } },
+    get() { return undefined; },
+    effect(fn) { const d = fn(); return typeof d === 'function' ? d : () => {}; },
+    on() { return () => {}; },
+    interval() { return () => {}; },
+    timeout() { return () => {}; },
+  };
+  const makeJsonReq = (path, body) => {
+    const handlers = {};
+    const req = { url: path, method: 'POST', headers: {}, on(ev, fn) { handlers[ev] = fn; return req; } };
+    setImmediate(() => {
+      if (handlers.data) handlers.data(Buffer.from(JSON.stringify(body)));
+      if (handlers.end) handlers.end();
+    });
+    return req;
+  };
+  await plugin.apply(ctxX);
+  const res = makeRes();
+  await routeX.handler(makeJsonReq('/usage-billing?action=budget', { daily: 10, monthly: 100 }), res);
+  const out = JSON.parse(res.body);
+  check('POST action=budget 返回生效的预算值', !!out.ok && out.budgetDaily === 10 && out.budgetMonthly === 100, res.body);
+
+  const res2 = makeRes();
+  await routeX.handler(makeReq('/usage-billing'), res2);
+  const full = JSON.parse(res2.body);
+  check(
+    '预算更新不影响价目/节假日等其它配置',
+    full.config.customModels.length === 71 && full.config.holidayDays.length > 60 && full.budget.daily.limit === 10 && full.budget.monthly.limit === 100,
+    JSON.stringify({ models: full.config.customModels.length, holidays: full.config.holidayDays.length, d: full.budget.daily.limit, m: full.budget.monthly.limit }),
+  );
+
+  // 清空预算（null）也应被接受
+  const res3 = makeRes();
+  await routeX.handler(makeJsonReq('/usage-billing?action=budget', { daily: null, monthly: '' }), res3);
+  const out3 = JSON.parse(res3.body);
+  check('预算可清空（null/空串）', !!out3.ok && out3.budgetDaily === null && out3.budgetMonthly === null, res3.body);
+}
+
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
 process.exit(fail ? 1 : 0);
