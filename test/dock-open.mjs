@@ -178,7 +178,7 @@ if (triggers[0]) {
   };
   collect(tree);
   const joined = texts.join(' | ');
-  check('时段花费使用宿主精确分布（¥5.0000 · 100）', joined.includes('¥5.0000 · 100'), joined.slice(0, 200));
+  check('时段花费使用宿主精确分布（¥5.00 · 100）', joined.includes('¥5.00 · 100'), joined.slice(0, 200));
 }
 
 console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
